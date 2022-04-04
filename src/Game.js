@@ -3,7 +3,7 @@ import * as PIXI from 'pixi.js';
 export default class Game {
   mobs = [];
 
-  constructor(setMovement = null, setKeys = null) {
+  constructor(setMovement = null, setKeys = null, changeLocation = null) {
     this.setMovement = setMovement;
     this.setKeys = setKeys;
 
@@ -94,7 +94,8 @@ export default class Game {
     this.app.ticker.add((delta) => {
       // todo change speed if angle is different
       const currentAngle = this.angleFromKeys(keys);
-      if (currentAngle != null) angle = currentAngle;
+      if (currentAngle !== angle) speed /= 2;
+      if (currentAngle !== null) angle = currentAngle;
 
       acceleration = Object.values(keys).some((key) => key) ? ACCELERATION : 0;
 
