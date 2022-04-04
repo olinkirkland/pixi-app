@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 
 export default class Game {
-  constructor(setSpeed = null, setKeys = null) {
+  constructor(setMovement = null, setKeys = null) {
     console.log('== Setting up game ==');
 
     const app = new PIXI.Application({ backgroundColor: 0x1099bb });
@@ -12,67 +12,117 @@ export default class Game {
     const sprite = PIXI.Sprite.from('assets/bob.png');
 
     // Set the initial position
-    sprite.anchor.set(0.5);
+    sprite.anchor.set(sprite.width / 2, sprite.height / 2);
     sprite.x = app.screen.width / 2;
     sprite.y = app.screen.height / 2;
 
     // Opt-in to interactivity
     sprite.interactive = true;
 
-    app.stage.addChild(sprite);
-
-    let movement = {
-      keys: {
-        left: false,
-        right: false,
-        up: false,
-        down: false
-      }
+    // Movement
+    let keys = {
+      left: false,
+      right: false,
+      up: false,
+      down: false
     };
+
+    let speed = {
+      vertical: 0,
+      horizontal: 0
+    };
+    let acceleration = {
+      vertical: 0,
+      horizontal: 0
+    };
+
+    let maxSpeed = 3;
+    let minSpeed = 0.1;
+    let friction = 0.8;
+
+    // Ticker
+    app.ticker.add(function (delta) {
+      // Change the acceleration
+      if (keys.left) acceleration.horizontal = -1;
+      if (keys.right) acceleration.horizontal = 1;
+      if ((keys.left && keys.right) || (!keys.left && !keys.right))
+        acceleration.horizontal = 0;
+      if (keys.up) acceleration.vertical = -1;
+      if (keys.down) acceleration.vertical = 1;
+      if ((keys.up && keys.down) || (!keys.up && !keys.down))
+        acceleration.vertical = 0;
+
+      // Change the speed
+      speed.horizontal += acceleration.horizontal;
+      speed.vertical += acceleration.vertical;
+
+      // Speed limits
+      if (speed.horizontal > maxSpeed) speed.horizontal = maxSpeed;
+      if (speed.horizontal < -maxSpeed) speed.horizontal = -maxSpeed;
+      if (speed.vertical > maxSpeed) speed.vertical = maxSpeed;
+      if (speed.vertical < -maxSpeed) speed.vertical = -maxSpeed;
+
+      // Position changes
+      sprite.x += speed.horizontal;
+      sprite.y += speed.vertical;
+
+      // Slow down
+      speed.horizontal *= friction;
+      if (speed.horizontal < minSpeed && speed.horizontal > -minSpeed)
+        speed.horizontal = 0;
+
+      speed.vertical *= friction;
+      if (speed.vertical < minSpeed && speed.vertical > -minSpeed)
+        speed.vertical = 0;
+
+      setMovement({ speed: speed, acceleration: acceleration });
+    });
+
+    app.stage.addChild(sprite);
 
     // Movement listeners
     document.addEventListener('keydown', (e) => {
       switch (e.key) {
         case 'ArrowUp':
-          movement.keys.up = true;
+          keys.up = true;
           break;
         case 'ArrowDown':
-          movement.keys.down = true;
+          keys.down = true;
           break;
         case 'ArrowLeft':
-          movement.keys.left = true;
+          keys.left = true;
           break;
         case 'ArrowRight':
-          movement.keys.right = true;
+          keys.right = true;
           break;
         default:
           break;
       }
 
       console.log(`Keydown: ${e.key}`);
-      setKeys(movement);
+      setKeys({ ...keys });
     });
 
     document.addEventListener('keyup', (e) => {
       switch (e.key) {
         case 'ArrowUp':
-          movement.keys.up = false;
+          keys.up = false;
           break;
         case 'ArrowDown':
-          movement.keys.down = false;
+          keys.down = false;
           break;
         case 'ArrowLeft':
-          movement.keys.left = false;
+          keys.left = false;
           break;
         case 'ArrowRight':
-          movement.keys.right = false;
+          keys.right = false;
           break;
         default:
           break;
       }
 
       console.log(`Key up: ${e.key}`);
-      setKeys(movement);
+      setKeys({ ...keys });
     });
   }
 }
