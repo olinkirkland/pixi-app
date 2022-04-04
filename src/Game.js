@@ -22,13 +22,16 @@ export default class Game {
     // Draw grid
     const grid = new PIXI.Graphics();
     grid.lineStyle(1, 0xffffff, 0.5);
-    for (let i = 0; i < this.app.screen.width; i += 32) {
-      grid.moveTo(i, 0);
-      grid.lineTo(i, this.app.screen.height);
+    const size = 32;
+    const cols = 20;
+    const rows = 10;
+    for (let i = 0; i <= cols; i++) {
+      grid.moveTo(i * size, 0);
+      grid.lineTo(i * size, rows * size);
     }
-    for (let i = 0; i < this.app.screen.height; i += 32) {
-      grid.moveTo(0, i);
-      grid.lineTo(this.app.screen.width, i);
+    for (let i = 0; i <= rows; i++) {
+      grid.moveTo(0, i * size);
+      grid.lineTo(cols * size, i * size);
     }
     this.world.addChild(grid);
 
