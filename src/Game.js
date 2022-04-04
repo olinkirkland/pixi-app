@@ -55,7 +55,7 @@ export default class Game {
       horizontal: 0
     };
 
-    let maxSpeed = 3;
+    let maxSpeed = 2;
     let minSpeed = 0.1;
     let minWalkSpeed = 0.3; // Minimum speed to play walk animation
     let friction = 0.8;
@@ -101,12 +101,14 @@ export default class Game {
       ) {
         player.textures = playerSheet.stand;
       } else {
-        player.scale.x = speed.horizontal > 0 ? 1 : -1;
         if (player.textures !== playerSheet.walk) {
           player.textures = playerSheet.walk;
           player.play();
         }
       }
+
+      if (Math.abs(speed.horizontal) > 0)
+        player.scale.x = speed.horizontal > 0 ? 1 : -1;
 
       this.setMovement({ speed: speed, acceleration: acceleration });
     });
