@@ -1,6 +1,8 @@
 import * as PIXI from 'pixi.js';
 
 export default class Game {
+  mobs = [];
+
   constructor(setMovement = null, setKeys = null) {
     this.setMovement = setMovement;
     this.setKeys = setKeys;
@@ -13,6 +15,24 @@ export default class Game {
     // Scale mode for all textures, will retain pixelation
     PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
+    // Add an empty container, world, to stage
+    this.world = new PIXI.Container();
+    this.app.stage.addChild(this.world);
+
+    // Draw grid
+    const grid = new PIXI.Graphics();
+    grid.lineStyle(1, 0xffffff, 0.5);
+    for (let i = 0; i < this.app.screen.width; i += 32) {
+      grid.moveTo(i, 0);
+      grid.lineTo(i, this.app.screen.height);
+    }
+    for (let i = 0; i < this.app.screen.height; i += 32) {
+      grid.moveTo(0, i);
+      grid.lineTo(this.app.screen.width, i);
+    }
+    this.world.addChild(grid);
+
+    // Add player
     this.app.loader.add('bob', 'assets/bob-walk.png');
     this.app.loader.load(() => {
       // Pack the player sheet
@@ -28,6 +48,19 @@ export default class Game {
       this.handlePlayerMovement(this.player, playerSheet);
     });
   }
+
+  addMob(npc) {
+    // id, x, y, skin
+    this.mobs.push(npc);
+  }
+
+  removeMob(id) {
+    this.mobs.forEach((mob, index) => {
+      if (mob.id === id) this.mobs.splice(index, 1);
+    });
+  }
+
+  updateMob(id) {}
 
   handlePlayerMovement(player, playerSheet) {
     // Set the initial position
@@ -83,13 +116,17 @@ export default class Game {
       if (angle !== 90 && angle !== 270)
         player.scale.x = angle > 90 && angle < 270 ? -1 : 1;
 
+      // Center world on player
+      this.world.x = -player.x + this.app.screen.width / 2;
+      this.world.y = -player.y + this.app.screen.height / 2;
+
       this.setMovement({
         moving: speed > MIN_WALK_SPEED,
         angle: angle
       });
     });
 
-    this.app.stage.addChild(player);
+    this.world.addChild(player);
 
     // Movement listeners
     document.addEventListener('keydown', (e) => {
