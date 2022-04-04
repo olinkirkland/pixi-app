@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 
 export default class Game {
-  constructor() {
+  constructor(setSpeed = null, setKeys = null) {
     console.log('== Setting up game ==');
 
     const app = new PIXI.Application({ backgroundColor: 0x1099bb });
@@ -27,8 +27,7 @@ export default class Game {
         right: false,
         up: false,
         down: false
-      },
-      
+      }
     };
 
     // Movement listeners
@@ -47,9 +46,11 @@ export default class Game {
           movement.keys.right = true;
           break;
         default:
-          console.log(`Unknown key: ${e.key}`);
           break;
       }
+
+      console.log(`Keydown: ${e.key}`);
+      setKeys(movement);
     });
 
     document.addEventListener('keyup', (e) => {
@@ -67,9 +68,11 @@ export default class Game {
           movement.keys.right = false;
           break;
         default:
-          console.log(`Unknown key: ${e.key}`);
           break;
       }
+
+      console.log(`Key up: ${e.key}`);
+      setKeys(movement);
     });
   }
 }
