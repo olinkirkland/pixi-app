@@ -56,19 +56,20 @@ export default class Game {
     };
 
     let maxSpeed = 2;
+    let maxDiagonalSpeed = maxSpeed / Math.sqrt(2);
     let minSpeed = 0.1;
     let minWalkSpeed = 0.3; // Minimum speed to play walk animation
-    let friction = 0.8;
+    let friction = 0.7;
 
     // Ticker
     this.app.ticker.add((delta) => {
       // Change the acceleration
-      if (keys.left) acceleration.horizontal = -1;
-      if (keys.right) acceleration.horizontal = 1;
+      if (keys.left) acceleration.horizontal = -0.2;
+      if (keys.right) acceleration.horizontal = 0.2;
       if ((keys.left && keys.right) || (!keys.left && !keys.right))
         acceleration.horizontal = 0;
-      if (keys.up) acceleration.vertical = -1;
-      if (keys.down) acceleration.vertical = 1;
+      if (keys.up) acceleration.vertical = -0.2;
+      if (keys.down) acceleration.vertical = 0.2;
       if ((keys.up && keys.down) || (!keys.up && !keys.down))
         acceleration.vertical = 0;
 
@@ -76,22 +77,29 @@ export default class Game {
       speed.horizontal += acceleration.horizontal;
       speed.vertical += acceleration.vertical;
 
+      // Diagonal speed modifier
+      const max =
+        (keys.left && (keys.up || keys.down)) ||
+        (keys.right && (keys.up || keys.down))
+          ? maxDiagonalSpeed
+          : maxSpeed;
+
       // Speed limits
-      if (speed.horizontal > maxSpeed) speed.horizontal = maxSpeed;
-      if (speed.horizontal < -maxSpeed) speed.horizontal = -maxSpeed;
-      if (speed.vertical > maxSpeed) speed.vertical = maxSpeed;
-      if (speed.vertical < -maxSpeed) speed.vertical = -maxSpeed;
+      if (speed.horizontal > max) speed.horizontal = max;
+      if (speed.horizontal < -max) speed.horizontal = -max;
+      if (speed.vertical > max) speed.vertical = max;
+      if (speed.vertical < -max) speed.vertical = -max;
 
       // Position changes
       player.x += speed.horizontal;
       player.y += speed.vertical;
 
       // Slow down
-      speed.horizontal *= friction;
+      if (!keys.left && !keys.right) speed.horizontal *= friction;
       if (speed.horizontal < minSpeed && speed.horizontal > -minSpeed)
         speed.horizontal = 0;
 
-      speed.vertical *= friction;
+      if (!keys.up && !keys.down) speed.vertical *= friction;
       if (speed.vertical < minSpeed && speed.vertical > -minSpeed)
         speed.vertical = 0;
 
