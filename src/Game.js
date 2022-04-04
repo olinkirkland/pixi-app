@@ -32,7 +32,6 @@ export default class Game {
 
   handlePlayerMovement(player, playerSheet) {
     // Set the initial position
-    player.anchor.set(player.width / 2, player.height / 2);
     player.x = this.app.screen.width / 2;
     player.y = this.app.screen.height / 2;
 
@@ -58,6 +57,7 @@ export default class Game {
 
     let maxSpeed = 3;
     let minSpeed = 0.1;
+    let minWalkSpeed = 0.3; // Minimum speed to play walk animation
     let friction = 0.8;
 
     // Ticker
@@ -95,7 +95,10 @@ export default class Game {
       if (speed.vertical < minSpeed && speed.vertical > -minSpeed)
         speed.vertical = 0;
 
-      if (speed.vertical === 0 && speed.horizontal === 0) {
+      if (
+        Math.abs(speed.vertical) < minWalkSpeed &&
+        Math.abs(speed.horizontal) < minWalkSpeed
+      ) {
         player.textures = playerSheet.stand;
       } else {
         if (player.textures !== playerSheet.walk) {
@@ -103,6 +106,8 @@ export default class Game {
           player.play();
         }
       }
+
+      player.scale.x = speed.horizontal > 0 ? 1 : -1;
 
       this.setMovement({ speed: speed, acceleration: acceleration });
     });
