@@ -2,22 +2,42 @@ import * as PIXI from 'pixi.js';
 
 export default class Game {
   constructor(setMovement = null, setKeys = null) {
+    this.setMovement = setMovement;
+    this.setKeys = setKeys;
+
     console.log('== Setting up game ==');
 
-    const app = new PIXI.Application({ backgroundColor: 0x1099bb });
-    document.body.appendChild(app.view);
+    this.app = new PIXI.Application({ backgroundColor: 0x1099bb });
+    document.body.appendChild(this.app.view);
 
     // Scale mode for all textures, will retain pixelation
     PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
-    const sprite = PIXI.Sprite.from('assets/bob.png');
 
+    this.app.loader.add('bob', 'assets/bob-walk.png');
+    this.app.loader.load(() => {
+      // Pack the player sheet
+      const playerSheet = this.packPlayerSpriteSheet(
+        new PIXI.BaseTexture.from(this.app.loader.resources['bob'].url)
+      );
+
+      // Create player
+      this.player = new PIXI.AnimatedSprite(playerSheet.walk);
+      this.player.anchor.set(0.5);
+      this.player.animationSpeed = 0.2;
+      this.player.loop = true;
+      this.player.play();
+      this.handlePlayerMovement(this.player, playerSheet);
+    });
+  }
+
+  handlePlayerMovement(player, playerSheet) {
     // Set the initial position
-    sprite.anchor.set(sprite.width / 2, sprite.height / 2);
-    sprite.x = app.screen.width / 2;
-    sprite.y = app.screen.height / 2;
+    player.anchor.set(player.width / 2, player.height / 2);
+    player.x = this.app.screen.width / 2;
+    player.y = this.app.screen.height / 2;
 
     // Opt-in to interactivity
-    sprite.interactive = true;
+    player.interactive = true;
 
     // Movement
     let keys = {
@@ -41,7 +61,7 @@ export default class Game {
     let friction = 0.8;
 
     // Ticker
-    app.ticker.add(function (delta) {
+    this.app.ticker.add((delta) => {
       // Change the acceleration
       if (keys.left) acceleration.horizontal = -1;
       if (keys.right) acceleration.horizontal = 1;
@@ -63,8 +83,8 @@ export default class Game {
       if (speed.vertical < -maxSpeed) speed.vertical = -maxSpeed;
 
       // Position changes
-      sprite.x += speed.horizontal;
-      sprite.y += speed.vertical;
+      player.x += speed.horizontal;
+      player.y += speed.vertical;
 
       // Slow down
       speed.horizontal *= friction;
@@ -75,10 +95,19 @@ export default class Game {
       if (speed.vertical < minSpeed && speed.vertical > -minSpeed)
         speed.vertical = 0;
 
-      setMovement({ speed: speed, acceleration: acceleration });
+      if (speed.vertical === 0 && speed.horizontal === 0) {
+        player.textures = playerSheet.stand;
+      } else {
+        if (player.textures !== playerSheet.walk) {
+          player.textures = playerSheet.walk;
+          player.play();
+        }
+      }
+
+      this.setMovement({ speed: speed, acceleration: acceleration });
     });
 
-    app.stage.addChild(sprite);
+    this.app.stage.addChild(player);
 
     // Movement listeners
     document.addEventListener('keydown', (e) => {
@@ -99,8 +128,8 @@ export default class Game {
           break;
       }
 
-      console.log(`Keydown: ${e.key}`);
-      setKeys({ ...keys });
+      // console.log(`Keydown: ${e.key}`);
+      this.setKeys({ ...keys });
     });
 
     document.addEventListener('keyup', (e) => {
@@ -121,8 +150,26 @@ export default class Game {
           break;
       }
 
-      console.log(`Key up: ${e.key}`);
-      setKeys({ ...keys });
+      // console.log(`Key up: ${e.key}`);
+      this.setKeys({ ...keys });
     });
+  }
+
+  packPlayerSpriteSheet(texture) {
+    console.log(texture.width, texture.height);
+    const w = texture.width / 4;
+    const h = texture.height;
+
+    const playerSheet = {
+      stand: [new PIXI.Texture(texture, new PIXI.Rectangle(0 * w, 0, w, h))],
+      walk: [
+        new PIXI.Texture(texture, new PIXI.Rectangle(0 * w, 0, w, h)),
+        new PIXI.Texture(texture, new PIXI.Rectangle(1 * w, 0, w, h)),
+        new PIXI.Texture(texture, new PIXI.Rectangle(2 * w, 0, w, h)),
+        new PIXI.Texture(texture, new PIXI.Rectangle(3 * w, 0, w, h))
+      ]
+    };
+
+    return playerSheet;
   }
 }

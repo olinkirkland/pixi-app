@@ -12,8 +12,8 @@ function App() {
   return (
     <>
       <h1>PixiJS + React</h1>
-      <pre>{JSON.stringify(movement)}</pre>
-      <pre>{JSON.stringify(keys)}</pre>
+      <pre>{`Movement: ${JSON.stringify(movement)}`}</pre>
+      <pre>{`Keys: ${JSON.stringify(keys)}`}</pre>
     </>
   );
 }
