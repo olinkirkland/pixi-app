@@ -101,13 +101,12 @@ export default class Game {
       ) {
         player.textures = playerSheet.stand;
       } else {
+        player.scale.x = speed.horizontal > 0 ? 1 : -1;
         if (player.textures !== playerSheet.walk) {
           player.textures = playerSheet.walk;
           player.play();
         }
       }
-
-      player.scale.x = speed.horizontal > 0 ? 1 : -1;
 
       this.setMovement({ speed: speed, acceleration: acceleration });
     });
