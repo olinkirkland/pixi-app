@@ -25,7 +25,6 @@ export default class Game {
       this.player.anchor.set(0.5);
       this.player.animationSpeed = 0.2;
       this.player.loop = true;
-      this.player.play();
       this.handlePlayerMovement(this.player, playerSheet);
     });
   }
@@ -38,6 +37,12 @@ export default class Game {
     // Opt-in to interactivity
     player.interactive = true;
 
+    const MAX_SPEED = 2; // Maximum speed
+    const MIN_SPEED = 0.1; // Minimum speed before stopping
+    const MIN_WALK_SPEED = 0.3; // Minimum speed to play walk animation
+    const FRICTION = 0.8; // Player slows down by this coefficient when not accelerating
+    const ACCELERATION = 0.2; // Player accelerates by this coefficient when moving
+
     // Movement
     let keys = {
       left: false,
@@ -46,79 +51,42 @@ export default class Game {
       down: false
     };
 
-    let speed = {
-      vertical: 0,
-      horizontal: 0
-    };
-    let acceleration = {
-      vertical: 0,
-      horizontal: 0
-    };
+    let speed = 0;
+    let acceleration = 0;
+    let angle = null;
 
-    let maxSpeed = 2;
-    let maxDiagonalSpeed = maxSpeed / Math.sqrt(2);
-    let minSpeed = 0.1;
-    let minWalkSpeed = 0.3; // Minimum speed to play walk animation
-    let friction = 0.7;
-
-    // Ticker
     this.app.ticker.add((delta) => {
-      // Change the acceleration
-      if (keys.left) acceleration.horizontal = -0.2;
-      if (keys.right) acceleration.horizontal = 0.2;
-      if ((keys.left && keys.right) || (!keys.left && !keys.right))
-        acceleration.horizontal = 0;
-      if (keys.up) acceleration.vertical = -0.2;
-      if (keys.down) acceleration.vertical = 0.2;
-      if ((keys.up && keys.down) || (!keys.up && !keys.down))
-        acceleration.vertical = 0;
+      // todo change speed if angle is different
+      const currentAngle = this.angleFromKeys(keys);
+      if (currentAngle != null) angle = currentAngle;
 
-      // Change the speed
-      speed.horizontal += acceleration.horizontal;
-      speed.vertical += acceleration.vertical;
+      acceleration = Object.values(keys).some((key) => key) ? ACCELERATION : 0;
 
-      // Diagonal speed modifier
-      const max =
-        (keys.left && (keys.up || keys.down)) ||
-        (keys.right && (keys.up || keys.down))
-          ? maxDiagonalSpeed
-          : maxSpeed;
+      speed += acceleration;
+      speed = Math.min(speed, MAX_SPEED);
 
-      // Speed limits
-      if (speed.horizontal > max) speed.horizontal = max;
-      if (speed.horizontal < -max) speed.horizontal = -max;
-      if (speed.vertical > max) speed.vertical = max;
-      if (speed.vertical < -max) speed.vertical = -max;
+      player.x += Math.cos((angle * Math.PI) / 180) * speed;
+      player.y += Math.sin((angle * Math.PI) / 180) * speed;
 
-      // Position changes
-      player.x += speed.horizontal;
-      player.y += speed.vertical;
+      if (!acceleration) speed *= FRICTION;
+      if (speed < MIN_SPEED) speed = 0;
 
-      // Slow down
-      if (!keys.left && !keys.right) speed.horizontal *= friction;
-      if (speed.horizontal < minSpeed && speed.horizontal > -minSpeed)
-        speed.horizontal = 0;
-
-      if (!keys.up && !keys.down) speed.vertical *= friction;
-      if (speed.vertical < minSpeed && speed.vertical > -minSpeed)
-        speed.vertical = 0;
-
-      if (
-        Math.abs(speed.vertical) < minWalkSpeed &&
-        Math.abs(speed.horizontal) < minWalkSpeed
-      ) {
-        player.textures = playerSheet.stand;
-      } else {
+      if (speed > MIN_WALK_SPEED) {
         if (player.textures !== playerSheet.walk) {
           player.textures = playerSheet.walk;
-          player.play();
+          if (!player.playing) player.play();
         }
+      } else {
+        player.textures = playerSheet.stand;
       }
 
-      if (Math.abs(speed.horizontal) > 0)
-        player.scale.x = speed.horizontal > 0 ? 1 : -1;
+      if (angle !== 90 && angle !== 270)
+        player.scale.x = angle > 90 && angle < 270 ? -1 : 1;
 
-      this.setMovement({ speed: speed, acceleration: acceleration });
+      this.setMovement({
+        moving: speed > MIN_WALK_SPEED,
+        angle: angle
+      });
     });
 
     this.app.stage.addChild(player);
@@ -169,13 +137,37 @@ export default class Game {
     });
   }
 
+  angleFromKeys(keys) {
+    let angle = null;
+
+    if (keys.up && keys.left) {
+      angle = 225;
+    } else if (keys.up && keys.right) {
+      angle = 315;
+    } else if (keys.down && keys.left) {
+      angle = 135;
+    } else if (keys.down && keys.right) {
+      angle = 45;
+    } else if (keys.up) {
+      angle = 270;
+    } else if (keys.down) {
+      angle = 90;
+    } else if (keys.left) {
+      angle = 180;
+    } else if (keys.right) {
+      angle = 0;
+    }
+
+    return angle;
+  }
+
   packPlayerSpriteSheet(texture) {
     console.log(texture.width, texture.height);
     const w = texture.width / 4;
     const h = texture.height;
 
     const playerSheet = {
-      stand: [new PIXI.Texture(texture, new PIXI.Rectangle(0 * w, 0, w, h))],
+      stand: [new PIXI.Texture(texture, new PIXI.Rectangle(1 * w, 0, w, h))],
       walk: [
         new PIXI.Texture(texture, new PIXI.Rectangle(0 * w, 0, w, h)),
         new PIXI.Texture(texture, new PIXI.Rectangle(1 * w, 0, w, h)),
