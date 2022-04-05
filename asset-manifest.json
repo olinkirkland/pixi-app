@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/pixi-app/static/css/main.8ecd0576.css",
+    "main.js": "/pixi-app/static/js/main.ee4e6e8b.js",
+    "index.html": "/pixi-app/index.html",
+    "main.8ecd0576.css.map": "/pixi-app/static/css/main.8ecd0576.css.map",
+    "main.ee4e6e8b.js.map": "/pixi-app/static/js/main.ee4e6e8b.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8ecd0576.css",
+    "static/js/main.ee4e6e8b.js"
+  ]
+}
