@@ -107,6 +107,8 @@ export default class Game {
       down: false
     };
 
+    this.setKeys({ ...keys });
+
     let speed = 0;
     let acceleration = 0;
     let angle = null;

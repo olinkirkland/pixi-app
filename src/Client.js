@@ -10,7 +10,7 @@ export default class Client {
     this.setElapsedTics = setElapsedTics;
 
     // Automatically connect
-    // this.connect();
+    this.connect();
   }
 
   connect() {
