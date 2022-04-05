@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { Mob, Player } from './Mob';
 import { skins } from './Util';
+import { gsap } from 'gsap';
 
 export default class Game {
   mobs = [];
@@ -68,8 +69,7 @@ export default class Game {
       return;
     }
 
-    mob.x = x;
-    mob.y = y;
+    gsap.to(mob, { x: x, y: y, duration: 0.5 });
   }
 
   setSkin(id, skin) {
