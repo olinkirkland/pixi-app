@@ -1,4 +1,40 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
 body {
   height: 100%;
   overflow: hidden;
+  margin: 2rem;
+  font-family: Cambria, serif;
+}
+
+ul {
+  list-style-type: none;
+  display: flex;
+  gap: 0.4rem;
+  padding: 1rem;
+}
+
+h1 {
+  margin: 1rem 0;
+}
+
+pre {
+  font-family: Consolas, monospace;
+  margin: 0.4rem;
+  border-left: 3px solid lightgray;
+  padding-left: 0.4rem;
+}
+
+button {
+  font-family: Cambria, serif;
+  padding: 0.2rem 0.6rem;
+  border: none;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.8rem;
+  font-weight: lighter;
 }

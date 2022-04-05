@@ -1,7 +1,9 @@
 import * as PIXI from 'pixi.js';
+import { Player } from './Mob';
 
 export default class Game {
   mobs = [];
+  player = null;
 
   constructor(setMovement = null, setKeys = null, changeLocation = null) {
     this.setMovement = setMovement;
@@ -33,28 +35,43 @@ export default class Game {
       grid.moveTo(0, i * size);
       grid.lineTo(cols * size, i * size);
     }
+
     this.world.addChild(grid);
 
-    // Add player
-    this.app.loader.add('bob', 'assets/bob-walk.png');
-    this.app.loader.load(() => {
-      // Pack the player sheet
-      const playerSheet = this.packPlayerSpriteSheet(
-        new PIXI.BaseTexture.from(this.app.loader.resources['bob'].url)
-      );
+    // Load Textures, then start the game
+    const skins = ['blue', 'green', 'orange', 'purple', 'tan'];
+    skins.forEach((skin) => {
+      this.app.loader.add(skin, `assets/skins/${skin}.png`);
+    });
 
-      // Create player
-      this.player = new PIXI.AnimatedSprite(playerSheet.walk);
-      this.player.anchor.set(0.5);
-      this.player.animationSpeed = 0.2;
-      this.player.loop = true;
-      this.handlePlayerMovement(this.player, playerSheet);
+    this.app.loader.load(() => {
+      this.start();
     });
   }
 
-  addMob(npc) {
-    // id, x, y, skin
-    this.mobs.push(npc);
+  start() {
+    // Create the player
+    this.player = new Player(this.app, this.world, -1, 0, 0, 'blue');
+    this.mobs.push(this.player);
+    this.handlePlayerMovement(this.player);
+  }
+
+  addMob(mob) {
+    this.mobs.push(mob);
+  }
+
+  updateMob(id, x, y) {
+    const mob = this.mobs.find((m) => m.id === id);
+    mob.x = x;
+    mob.y = y;
+  }
+
+  setSkin(id, skin) {
+    const mob = this.mobs.find((m) => m.id === id);
+    if (mob) mob.setSkin(skin);
+    else {
+      console.error('Could not find mob with id:', id, ' in ', this.mobs);
+    }
   }
 
   removeMob(id) {
@@ -65,7 +82,7 @@ export default class Game {
 
   updateMob(id) {}
 
-  handlePlayerMovement(player, playerSheet) {
+  handlePlayerMovement(player) {
     // Set the initial position
     player.x = this.app.screen.width / 2;
     player.y = this.app.screen.height / 2;
@@ -108,29 +125,32 @@ export default class Game {
       if (!acceleration) speed *= FRICTION;
       if (speed < MIN_SPEED) speed = 0;
 
+      player.moving = speed > MIN_WALK_SPEED;
       if (speed > MIN_WALK_SPEED) {
-        if (player.textures !== playerSheet.walk) {
-          player.textures = playerSheet.walk;
-          if (!player.playing) player.play();
-        }
+        player.moving = true;
+        // if (player.textures !== playerSheet.walk) {
+        //   player.textures = playerSheet.walk;
+        //   if (!player.playing) player.play();
+        // }
       } else {
-        player.textures = playerSheet.stand;
+        player.moving = false;
+        // player.textures = playerSheet.stand;
       }
 
-      if (angle !== 90 && angle !== 270)
-        player.scale.x = angle > 90 && angle < 270 ? -1 : 1;
+      // if (angle !== 90 && angle !== 270)
+      //   player.scale.x = angle > 90 && angle < 270 ? -1 : 1;
 
       // Center world on player
       this.world.x = -player.x + this.app.screen.width / 2;
       this.world.y = -player.y + this.app.screen.height / 2;
 
       this.setMovement({
+        x: Math.floor(player.x),
+        y: Math.floor(player.y),
         moving: speed > MIN_WALK_SPEED,
         angle: angle
       });
     });
-
-    this.world.addChild(player);
 
     // Movement listeners
     document.addEventListener('keydown', (e) => {
@@ -200,23 +220,5 @@ export default class Game {
     }
 
     return angle;
-  }
-
-  packPlayerSpriteSheet(texture) {
-    console.log(texture.width, texture.height);
-    const w = texture.width / 4;
-    const h = texture.height;
-
-    const playerSheet = {
-      stand: [new PIXI.Texture(texture, new PIXI.Rectangle(1 * w, 0, w, h))],
-      walk: [
-        new PIXI.Texture(texture, new PIXI.Rectangle(0 * w, 0, w, h)),
-        new PIXI.Texture(texture, new PIXI.Rectangle(1 * w, 0, w, h)),
-        new PIXI.Texture(texture, new PIXI.Rectangle(2 * w, 0, w, h)),
-        new PIXI.Texture(texture, new PIXI.Rectangle(3 * w, 0, w, h))
-      ]
-    };
-
-    return playerSheet;
   }
 }
