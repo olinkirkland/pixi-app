@@ -13,6 +13,7 @@ function App() {
   let client = useRef();
 
   useEffect(() => {
+    if (game)
     game.current = new Game(setMovement, setKeys);
     client.current = new Client(
       setIsConnected,

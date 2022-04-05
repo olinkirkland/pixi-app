@@ -6,9 +6,9 @@ import {
 } from './Util';
 
 const behavior = {
-  ticRate: 1,
+  ticRate: 0.1,
   maxActionsPerTic: 3,
-  maxMobs: 5,
+  maxMobs: 50,
   actionsWeight: [
     { value: 'join', weight: 2 },
     { value: 'leave', weight: 2 },
@@ -34,14 +34,17 @@ export default class Client {
     this.logAction = logAction;
 
     // Automatically connect
-    this.connect();
+    // this.connect();
   }
 
   connect() {
     this.isConnected = true;
     this.setIsConnected(this.isConnected);
     clearInterval(this.interval);
-    this.interval = setInterval(this.onInterval.bind(this), 1 * 1000);
+    this.interval = setInterval(
+      this.onInterval.bind(this),
+      behavior.ticRate * 1000
+    );
 
     this.setElapsedTics(0);
   }
