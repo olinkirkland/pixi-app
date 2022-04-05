@@ -43,13 +43,14 @@ export function generateJoinAction() {
   };
 }
 
-export function generateMoveAction(id) {
+export function generateMoveAction(mob) {
+  const dist = 60;
   return {
-    id: id,
+    id: mob.id,
     action: 'move',
     value: {
-      x: Math.floor(Math.random() * 800),
-      y: Math.floor(Math.random() * 600)
+      x: mob.x + Math.floor(Math.random() * dist) - dist / 2,
+      y: mob.y + Math.floor(Math.random() * dist) - dist / 2
     }
   };
 }

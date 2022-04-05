@@ -6,8 +6,9 @@ import {
 } from './Util';
 
 const behavior = {
-  ticRate: 3,
+  ticRate: 1,
   maxActionsPerTic: 3,
+  maxMobs: 5,
   actionsWeight: [
     { value: 'join', weight: 2 },
     { value: 'leave', weight: 2 },
@@ -33,7 +34,7 @@ export default class Client {
     this.logAction = logAction;
 
     // Automatically connect
-    // this.connect();
+    this.connect();
   }
 
   connect() {
@@ -51,14 +52,15 @@ export default class Client {
     for (let i = 0; i < behavior.maxActionsPerTic; i++) {
       switch (weightedPick(behavior.actionsWeight).value) {
         case 'join':
-          t.actions.push(generateJoinAction());
+          if (this.game.mobs.length < behavior.maxMobs)
+            t.actions.push(generateJoinAction());
           break;
         case 'leave':
           // todo
           break;
         case 'move':
           const mob = pickRandomMob(this.game.mobs.filter((m) => m.id !== -1));
-          if (mob) t.actions.push(generateMoveAction(mob.id));
+          if (mob) t.actions.push(generateMoveAction(mob));
           break;
         default:
           break;
@@ -82,8 +84,13 @@ export default class Client {
       this.logAction(action);
       switch (action.action) {
         case 'join':
-          this.game.addMob(action.id, action.value.skin, action.value.name);
-          this.game.moveMob(action.id, action.value.x, action.value.y);
+          this.game.addMob(
+            action.id,
+            action.value.skin,
+            action.value.name,
+            action.value.x,
+            action.value.y
+          );
           break;
         case 'leave':
           // todo

@@ -57,8 +57,10 @@ export default class Game {
     this.handlePlayerMovement(this.player);
   }
 
-  addMob(id, skin, name) {
+  addMob(id, skin, name, x, y) {
     const mob = new Mob(this.app, this.world, id, 0, 0, skin, name);
+    mob.x = x;
+    mob.y = y;
     this.mobs.push(mob);
   }
 
@@ -69,7 +71,15 @@ export default class Game {
       return;
     }
 
-    gsap.to(mob, { x: x, y: y, duration: 0.5 });
+    gsap.killTweensOf(mob);
+    mob.moving = true;
+    mob.face(x > mob.x ? 'right' : 'left');
+    gsap.to(mob, {
+      x: x,
+      y: y,
+      duration: 1,
+      onComplete: () => (mob.moving = false)
+    });
   }
 
   setSkin(id, skin) {

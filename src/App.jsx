@@ -23,8 +23,8 @@ function App() {
   }, []);
 
   function logAction(action) {
-    if (action.action === 'join') console.log(JSON.stringify(action));
-    // console.log(action.id, ' ==> ', action.action);
+    // if (action.action === 'join') console.log(JSON.stringify(action));
+    console.log(action.id, ' ==> ', action.action);
   }
 
   return (
