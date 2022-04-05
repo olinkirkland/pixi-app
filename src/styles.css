@@ -3,18 +3,27 @@
   padding: 0;
 }
 
+html {
+  font-size: 62.5%;
+  font-family: Georgia, serif;
+}
+
 body {
   height: 100%;
   overflow: hidden;
   margin: 2rem;
-  font-family: Cambria, serif;
 }
 
 ul {
   list-style-type: none;
   display: flex;
+  align-items: center;
   gap: 0.4rem;
   margin: 0.4rem 0;
+}
+
+p {
+  font-size: 1.4rem;
 }
 
 h1 {
@@ -23,18 +32,34 @@ h1 {
 
 pre {
   font-family: Consolas, monospace;
-  margin: 0.4rem;
-  border-left: 4px solid orange;
-  padding-left: 0.4rem;
+  font-size: 1.6rem;
+  margin: 1rem;
+  border-left: 0.4rem solid #ffa600;
+  padding-left: 0.8rem;
 }
 
 button {
   font-family: Cambria, serif;
-  padding: 0.2rem 0.6rem;
+  padding: 0.4rem 1.2rem;
   border: none;
-  border-radius: 99px;
+  border-radius: 5px;
+  cursor: pointer;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 0.8rem;
+  letter-spacing: 0.8px;
+  font-size: 1.2rem;
   font-weight: lighter;
+  background-color: #d3d3d350;
+  transition: all 0.3s;
+}
+
+button:hover {
+  background-color: #d3d3d390;
+}
+
+button:active {
+  background-color: #d3d3d3;
+}
+
+button:focus {
+  outline: none;
 }

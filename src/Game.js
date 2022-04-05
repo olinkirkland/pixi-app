@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { Player } from './Mob';
+import { skins } from './Util';
 
 export default class Game {
   mobs = [];
@@ -39,7 +40,6 @@ export default class Game {
     this.world.addChild(grid);
 
     // Load Textures, then start the game
-    const skins = ['blue', 'green', 'orange', 'purple', 'tan'];
     skins.forEach((skin) => {
       this.app.loader.add(skin, `assets/skins/${skin}.png`);
     });
@@ -52,7 +52,7 @@ export default class Game {
   start() {
     // Create the player
     this.player = new Player(this.app, this.world, -1, 0, 0, 'blue');
-    this.mobs.push(this.player);
+    this.addMob(this.player);
     this.handlePlayerMovement(this.player);
   }
 
@@ -60,11 +60,11 @@ export default class Game {
     this.mobs.push(mob);
   }
 
-  updateMob(id, x, y) {
-    const mob = this.mobs.find((m) => m.id === id);
-    mob.x = x;
-    mob.y = y;
-  }
+  // updateMob(id, x, y) {
+  //   const mob = this.mobs.find((m) => m.id === id);
+  //   mob.x = x;
+  //   mob.y = y;
+  // }
 
   setSkin(id, skin) {
     const mob = this.mobs.find((m) => m.id === id);
@@ -85,8 +85,6 @@ export default class Game {
       if (mob.id === id) this.mobs.splice(index, 1);
     });
   }
-
-  updateMob(id) {}
 
   handlePlayerMovement(player) {
     // Set the initial position
@@ -144,7 +142,7 @@ export default class Game {
       this.setMovement({
         x: Math.floor(player.x),
         y: Math.floor(player.y),
-        moving: speed > MIN_WALK_SPEED,
+        moving: player.moving,
         angle: angle,
         face: face
       });
