@@ -43,6 +43,11 @@ export class Mob {
     this.sprite.y = value;
   }
 
+  face(value) {
+    console.log(value);
+    this.sprite.scaleX = value === 'right' ? 1 : -1;
+  }
+
   setSkin(skin) {
     console.log('setSkin', skin);
     this.sheet = this.packSpriteSheet(

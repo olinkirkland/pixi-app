@@ -126,19 +126,9 @@ export default class Game {
       if (speed < MIN_SPEED) speed = 0;
 
       player.moving = speed > MIN_WALK_SPEED;
-      if (speed > MIN_WALK_SPEED) {
-        player.moving = true;
-        // if (player.textures !== playerSheet.walk) {
-        //   player.textures = playerSheet.walk;
-        //   if (!player.playing) player.play();
-        // }
-      } else {
-        player.moving = false;
-        // player.textures = playerSheet.stand;
-      }
 
-      // if (angle !== 90 && angle !== 270)
-      //   player.scale.x = angle > 90 && angle < 270 ? -1 : 1;
+      if (angle !== 90 && angle !== 270)
+        player.face(angle > 90 && angle < 270 ? 'left' : 'right');
 
       // Center world on player
       this.world.x = -player.x + this.app.screen.width / 2;
