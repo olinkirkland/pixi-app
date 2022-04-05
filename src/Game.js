@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { Player } from './Mob';
+import { Mob, Player } from './Mob';
 import { skins } from './Util';
 
 export default class Game {
@@ -52,19 +52,25 @@ export default class Game {
   start() {
     // Create the player
     this.player = new Player(this.app, this.world, -1, 0, 0, 'blue');
-    this.addMob(this.player);
+    this.mobs.push(this.player);
     this.handlePlayerMovement(this.player);
   }
 
-  addMob(mob) {
+  addMob(id, skin, name) {
+    const mob = new Mob(this.app, this.world, id, 0, 0, skin, name);
     this.mobs.push(mob);
   }
 
-  // updateMob(id, x, y) {
-  //   const mob = this.mobs.find((m) => m.id === id);
-  //   mob.x = x;
-  //   mob.y = y;
-  // }
+  moveMob(id, x, y) {
+    const mob = this.mobs.find((mob) => mob.id === id);
+    if (!mob) {
+      console.error(`Could not find mob with id: ${id}`);
+      return;
+    }
+
+    mob.x = x;
+    mob.y = y;
+  }
 
   setSkin(id, skin) {
     const mob = this.mobs.find((m) => m.id === id);

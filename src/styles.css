@@ -63,3 +63,19 @@ button:active {
 button:focus {
   outline: none;
 }
+
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.panel {
+  display: inline-flex;
+  flex-direction: column;
+  border-radius: 5px;
+  padding: 2rem;
+  background-color: beige;
+}

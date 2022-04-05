@@ -6,7 +6,6 @@ import { skins } from './Util';
 function App() {
   const [movement, setMovement] = useState();
   const [keys, setKeys] = useState();
-  const [mobs, setMobs] = useState([]);
   const [elapsedTics, setElapsedTics] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
 
@@ -15,7 +14,7 @@ function App() {
 
   useEffect(() => {
     game.current = new Game(setMovement, setKeys);
-    client.current = new Client(setIsConnected, setMobs, setElapsedTics);
+    client.current = new Client(setIsConnected, setElapsedTics, game.current);
   }, []);
 
   return (
@@ -24,43 +23,43 @@ function App() {
 
       <pre>{`Movement: ${JSON.stringify(movement)}`}</pre>
       <pre>{`Keys: ${JSON.stringify(keys)}`}</pre>
-      <pre>{`Mobs: ${JSON.stringify(mobs)}`}</pre>
 
-      <ul>
-        <button onClick={() => game.current.resetPlayerLocation()}>
-          Reset Player Location
-        </button>
-        <button
-          onClick={() => {
-            if (isConnected) {
-              client.current.disconnect();
-            } else {
-              client.current.connect();
-            }
-          }}
-        >
-          {isConnected ? 'Disconnect' : 'Connect'}
-        </button>
-        <p>
-          {isConnected
-            ? `Connected; ${elapsedTics} elapsed tics`
-            : `Not connected`}
-        </p>
-      </ul>
-
-      <ul>
-        {skins.map((skin) => (
-          <li key={skin}>
+      <div className="column">
+        <div className="panel">
+          <p>Server Simulator - Not a real server</p>
+          <ul>
             <button
               onClick={() => {
-                game.current.setSkin(-1, skin);
+                if (isConnected) {
+                  client.current.disconnect();
+                } else {
+                  client.current.connect();
+                }
               }}
             >
-              {skin}
+              {isConnected ? 'Stop Sim' : 'Start Sim'}
             </button>
-          </li>
-        ))}
-      </ul>
+            <p>{isConnected ? `Running; ${elapsedTics} elapsed tics` : ``}</p>
+          </ul>
+        </div>
+
+        <div className="panel">
+          <p>Server Simulator - Not a real server</p>
+          <ul>
+            {skins.map((skin) => (
+              <li key={skin}>
+                <button
+                  onClick={() => {
+                    game.current.setSkin(-1, skin);
+                  }}
+                >
+                  {skin}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </>
   );
 }

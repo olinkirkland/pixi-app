@@ -1,16 +1,16 @@
-import { randomUserName } from './Util';
+import { generateJoinAction } from './Util';
 
 export default class Client {
   isConnected = false;
   interval;
 
-  constructor(setIsConnected = null, setMobs = null, setElapsedTics = null) {
+  constructor(setIsConnected = null, setElapsedTics = null, game = null) {
     this.setIsConnected = setIsConnected;
-    this.setMobs = setMobs;
     this.setElapsedTics = setElapsedTics;
+    this.game = game;
 
     // Automatically connect
-    this.connect();
+    // this.connect();
   }
 
   connect() {
@@ -23,20 +23,14 @@ export default class Client {
   }
 
   generateTicObject() {
-    let u = { actions: [], coordinates: [] };
+    let t = { actions: [] };
 
     if (Math.random() < 1) {
-      // Add a new mob
-      const mob = {
-        id: Math.floor(Math.random() * 9999),
-        action: 'join',
-        value: { skin: '', name: randomUserName() }
-      };
-
-      console.log(JSON.stringify(mob));
+      const u = generateJoinAction();
+      t.actions.push(u);
     }
 
-    return u;
+    return t;
   }
 
   onInterval() {
@@ -44,11 +38,34 @@ export default class Client {
   }
 
   applyTicObject(u) {
-    const actions = u.actions;
-    const coordinates = u.coordinates;
-    console.log(actions, coordinates);
-
+    this.applyActions(u.actions);
     this.setElapsedTics((prev) => prev + 1);
+  }
+
+  applyActions(actions) {
+    actions.forEach((action) => {
+      switch (action.action) {
+        case 'join':
+          console.log(JSON.stringify(action, null, 2));
+          this.game.addMob(action.id, action.value.skin, action.value.name);
+          this.game.moveMob(action.id, action.value.x, action.value.y);
+          break;
+        case 'leave':
+          // todo
+          break;
+        case 'move':
+          this.game.moveMob(action.id, action.value.x, action.value.y);
+          break;
+        case 'skin':
+          // todo
+          break;
+        case 'name':
+          // todo
+          break;
+        default:
+          console.error('Unknown action:', action);
+      }
+    });
   }
 
   disconnect() {
