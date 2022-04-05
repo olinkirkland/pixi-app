@@ -44,8 +44,7 @@ export class Mob {
   }
 
   face(value) {
-    console.log(value);
-    this.sprite.scaleX = value === 'right' ? 1 : -1;
+    this.sprite.scale.x = value === 'right' ? 1 : -1;
   }
 
   setSkin(skin) {
@@ -62,6 +61,7 @@ export class Mob {
 
     this.sprite.x = coords.x;
     this.sprite.y = coords.y;
+    this.sprite.anchor.x = 0.5;
 
     this.sprite.animationSpeed = 0.2;
     this.sprite.loop = true;

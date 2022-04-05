@@ -107,6 +107,7 @@ export default class Game {
     let speed = 0;
     let acceleration = 0;
     let angle = null;
+    let face = 'right';
 
     this.app.ticker.add((delta) => {
       // todo change speed if angle is different
@@ -128,7 +129,8 @@ export default class Game {
       player.moving = speed > MIN_WALK_SPEED;
 
       if (angle !== 90 && angle !== 270)
-        player.face(angle > 90 && angle < 270 ? 'left' : 'right');
+        face = angle > 90 && angle < 270 ? 'left' : 'right';
+      player.face(face);
 
       // Center world on player
       this.world.x = -player.x + this.app.screen.width / 2;
@@ -138,7 +140,8 @@ export default class Game {
         x: Math.floor(player.x),
         y: Math.floor(player.y),
         moving: speed > MIN_WALK_SPEED,
-        angle: angle
+        angle: angle,
+        face: face
       });
     });
 
