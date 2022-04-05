@@ -74,6 +74,12 @@ export default class Game {
     }
   }
 
+  resetPlayerLocation() {
+    console.log('resetPlayerLocation');
+    this.player.x = this.app.screen.width / 2;
+    this.player.y = this.app.screen.height / 2;
+  }
+
   removeMob(id) {
     this.mobs.forEach((mob, index) => {
       if (mob.id === id) this.mobs.splice(index, 1);
@@ -84,8 +90,7 @@ export default class Game {
 
   handlePlayerMovement(player) {
     // Set the initial position
-    player.x = this.app.screen.width / 2;
-    player.y = this.app.screen.height / 2;
+    this.resetPlayerLocation();
 
     // Opt-in to interactivity
     player.interactive = true;

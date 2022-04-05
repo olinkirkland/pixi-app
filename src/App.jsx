@@ -17,6 +17,9 @@ function App() {
       <h1>PixiJS + React</h1>
       <pre>{`Movement: ${JSON.stringify(movement)}`}</pre>
       <pre>{`Keys: ${JSON.stringify(keys)}`}</pre>
+      <button onClick={() => game.current.resetPlayerLocation()}>
+        Reset Player Location
+      </button>
       <ul>
         {skins.map((skin) => (
           <li key={skin}>
