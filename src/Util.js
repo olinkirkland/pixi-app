@@ -31,7 +31,7 @@ export function randomUserName() {
 }
 
 export function generateJoinAction() {
-  const action = {
+  return {
     id: Math.floor(Math.random() * 9999),
     action: 'join',
     value: {
@@ -41,8 +41,41 @@ export function generateJoinAction() {
       y: Math.floor(Math.random() * 600)
     }
   };
+}
 
-  return action;
+export function generateMoveAction(id) {
+  return {
+    id: id,
+    action: 'move',
+    value: {
+      x: Math.floor(Math.random() * 800),
+      y: Math.floor(Math.random() * 600)
+    }
+  };
+}
+
+export function pickRandomMob(mobs) {
+  return mobs[Math.floor(Math.random() * mobs.length)];
 }
 
 export const skins = ['blue', 'green', 'orange', 'purple', 'tan'];
+
+export function weightedPick(arr) {
+  // Get the max weight
+  const max = arr.reduce((total, item) => {
+    return total + item.weight;
+  }, 0);
+
+  // Calculate a random number on the scale of max
+  let weight = Math.floor(Math.random() * max);
+
+  // For each item in the array, decrement max by that item's weight
+  let result;
+  arr.some((item) => {
+    weight -= item.weight;
+    result = item;
+    return weight < 0;
+  });
+
+  return result;
+}

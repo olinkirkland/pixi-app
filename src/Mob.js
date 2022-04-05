@@ -4,7 +4,7 @@ export class Mob {
   sprite;
 
   constructor(app, world, id, x, y, skin) {
-    console.log(`Mob id:${id}, skin:${skin}, x:${x}, y:${y}`);
+    // console.log(`Mob id:${id}, skin:${skin}, x:${x}, y:${y}`);
 
     this.app = app;
     this.world = world;
@@ -48,7 +48,7 @@ export class Mob {
   }
 
   setSkin(skin) {
-    console.log('setSkin', skin);
+    // console.log('setSkin', skin);
     this.sheet = this.packSpriteSheet(
       new PIXI.BaseTexture.from(this.app.loader.resources[skin].url)
     );

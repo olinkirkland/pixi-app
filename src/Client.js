@@ -1,13 +1,36 @@
-import { generateJoinAction } from './Util';
+import {
+  generateJoinAction,
+  generateMoveAction,
+  pickRandomMob,
+  weightedPick
+} from './Util';
+
+const behavior = {
+  ticRate: 3,
+  maxActionsPerTic: 3,
+  actionsWeight: [
+    { value: 'join', weight: 2 },
+    { value: 'leave', weight: 2 },
+    { value: 'move', weight: 2 },
+    { value: 'skin', weight: 1 },
+    { value: 'name', weight: 1 }
+  ]
+};
 
 export default class Client {
   isConnected = false;
   interval;
 
-  constructor(setIsConnected = null, setElapsedTics = null, game = null) {
+  constructor(
+    setIsConnected = null,
+    setElapsedTics = null,
+    game = null,
+    logAction = null
+  ) {
     this.setIsConnected = setIsConnected;
     this.setElapsedTics = setElapsedTics;
     this.game = game;
+    this.logAction = logAction;
 
     // Automatically connect
     // this.connect();
@@ -25,9 +48,21 @@ export default class Client {
   generateTicObject() {
     let t = { actions: [] };
 
-    if (Math.random() < 1) {
-      const u = generateJoinAction();
-      t.actions.push(u);
+    for (let i = 0; i < behavior.maxActionsPerTic; i++) {
+      switch (weightedPick(behavior.actionsWeight).value) {
+        case 'join':
+          t.actions.push(generateJoinAction());
+          break;
+        case 'leave':
+          // todo
+          break;
+        case 'move':
+          const mob = pickRandomMob(this.game.mobs.filter((m) => m.id !== -1));
+          if (mob) t.actions.push(generateMoveAction(mob.id));
+          break;
+        default:
+          break;
+      }
     }
 
     return t;
@@ -44,9 +79,9 @@ export default class Client {
 
   applyActions(actions) {
     actions.forEach((action) => {
+      this.logAction(action);
       switch (action.action) {
         case 'join':
-          console.log(JSON.stringify(action, null, 2));
           this.game.addMob(action.id, action.value.skin, action.value.name);
           this.game.moveMob(action.id, action.value.x, action.value.y);
           break;

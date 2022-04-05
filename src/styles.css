@@ -5,7 +5,7 @@
 
 html {
   font-size: 62.5%;
-  font-family: Georgia, serif;
+  font-family: Verdana, serif;
 }
 
 body {
@@ -39,12 +39,12 @@ pre {
 }
 
 button {
-  font-family: Cambria, serif;
+  font-family: inherit;
   padding: 0.4rem 1.2rem;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.8px;
   font-size: 1.2rem;
   font-weight: lighter;
@@ -77,5 +77,13 @@ button:focus {
   flex-direction: column;
   border-radius: 5px;
   padding: 2rem;
-  background-color: beige;
+  background-color: #d3d3d320;
+}
+
+.panel h2 {
+  font-size: 1rem;
+  letter-spacing: 1px;
+  font-weight: normal;
+  text-transform: uppercase;
+  opacity: 0.6;
 }

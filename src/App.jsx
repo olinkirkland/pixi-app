@@ -14,8 +14,18 @@ function App() {
 
   useEffect(() => {
     game.current = new Game(setMovement, setKeys);
-    client.current = new Client(setIsConnected, setElapsedTics, game.current);
+    client.current = new Client(
+      setIsConnected,
+      setElapsedTics,
+      game.current,
+      logAction
+    );
   }, []);
+
+  function logAction(action) {
+    if (action.action === 'join') console.log(JSON.stringify(action));
+    // console.log(action.id, ' ==> ', action.action);
+  }
 
   return (
     <>
@@ -26,7 +36,7 @@ function App() {
 
       <div className="column">
         <div className="panel">
-          <p>Server Simulator - Not a real server</p>
+          <h2>Server</h2>
           <ul>
             <button
               onClick={() => {
@@ -37,14 +47,14 @@ function App() {
                 }
               }}
             >
-              {isConnected ? 'Stop Sim' : 'Start Sim'}
+              {isConnected ? 'Stop' : 'Start'}
             </button>
             <p>{isConnected ? `Running; ${elapsedTics} elapsed tics` : ``}</p>
           </ul>
         </div>
 
         <div className="panel">
-          <p>Server Simulator - Not a real server</p>
+          <h2>Change your avatar</h2>
           <ul>
             {skins.map((skin) => (
               <li key={skin}>
