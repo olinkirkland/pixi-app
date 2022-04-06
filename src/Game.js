@@ -1,13 +1,13 @@
-import * as PIXI from 'pixi.js';
-import { Mob, Player } from './Mob';
-import { distance, skins } from './Util';
 import { gsap } from 'gsap';
+import * as PIXI from 'pixi.js';
+import Grid from './Grid';
+import { Mob, Player } from './Mob';
+import { skins } from './Util';
 import World from './World';
 
 export default class Game {
   mobs = [];
   player = null;
-  map = null;
 
   constructor(setMovement = null, setKeys = null) {
     this.setMovement = setMovement;
@@ -20,10 +20,6 @@ export default class Game {
 
     // Scale mode for all textures, will retain pixelation
     PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
-
-    // Add the world to the stage
-    this.world = new World(this.app);
-    this.app.stage.addChild(this.world);
 
     // Load tile reference
     let url = `${process.env.PUBLIC_URL}/assets/tile-reference.json`;
@@ -48,16 +44,20 @@ export default class Game {
       );
     });
 
-    console.log('Loading textures...');
+    console.log('Loading textures');
     this.app.loader.load(() => {
-      console.log('Loading complete!');
-
       // Load the map, then start
-      let url = `${process.env.PUBLIC_URL}/assets/maps/map-test.tmj`;
+      let url = `${process.env.PUBLIC_URL}/assets/maps/map.tmj`;
       fetch(url).then((response) => {
-        response.json().then((json) => {
-          this.map = json;
-          this.world.loadMap(this.map, this.tileReference);
+        response.json().then((map) => {
+          // Add the world to the stage
+          this.world = new World(this.app);
+          this.world.loadMap(map, this.tileReference);
+          this.app.stage.addChild(this.world);
+
+          // Add grid
+          this.grid = new Grid(this.world);
+          this.app.stage.addChild(this.grid);
 
           this.start();
         });
@@ -74,10 +74,14 @@ export default class Game {
   }
 
   jumpToRandomTile() {
-    const g =
-      this.world.grid[Math.floor(Math.random() * this.world.grid.length)];
+    this.jumpToTile(Math.floor(Math.random() * this.world.grid.length));
+  }
+
+  jumpToTile(n) {
+    const g = this.world.grid[n];
     this.player.x = g.x;
     this.player.y = g.y;
+    console.log(JSON.stringify(g));
   }
 
   addMob(id, skin, name, x, y) {
@@ -115,11 +119,7 @@ export default class Game {
   }
 
   resetPlayerLocation() {
-    // this.player.x = this.app.screen.width / 2;
-    // this.player.y = this.app.screen.height / 2;
-    // Set player x and y to 0
-    this.player.x = 0;
-    this.player.y = 0;
+    this.jumpToTile(0);
   }
 
   removeMob(id) {
@@ -182,6 +182,9 @@ export default class Game {
       // Center world on player
       this.world.x = -player.x + this.app.screen.width / 2;
       this.world.y = -player.y + this.app.screen.height / 2;
+
+      if (player.moving)
+        this.grid.markPlayer(this.world.isoToGrid(player.x, player.y));
 
       this.setMovement({
         x: Math.floor(player.x),

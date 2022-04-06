@@ -84,3 +84,22 @@ export function weightedPick(arr) {
 export function distance(p1, p2) {
   return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 }
+
+export function colorBetween(
+  color1,
+  color2,
+  percent
+) {
+  if (percent < 0) percent = 0;
+  if (percent > 1) percent = 1;
+
+  var r = color1 >> 16;
+  var g = (color1 >> 8) & 0xff;
+  var b = color1 & 0xff;
+
+  r += ((color2 >> 16) - r) * percent;
+  g += (((color2 >> 8) & 0xff) - g) * percent;
+  b += ((color2 & 0xff) - b) * percent;
+
+  return (r << 16) | (g << 8) | b;
+}
