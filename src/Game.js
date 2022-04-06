@@ -2,10 +2,12 @@ import * as PIXI from 'pixi.js';
 import { Mob, Player } from './Mob';
 import { skins } from './Util';
 import { gsap } from 'gsap';
+import World from './World';
 
 export default class Game {
   mobs = [];
   player = null;
+  map = null;
 
   constructor(setMovement = null, setKeys = null, changeLocation = null) {
     this.setMovement = setMovement;
@@ -19,26 +21,14 @@ export default class Game {
     // Scale mode for all textures, will retain pixelation
     PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
-    // Add an empty container, world, to stage
-    this.world = new PIXI.Container();
+    // Add the world to the stage
+    this.world = new World();
     this.app.stage.addChild(this.world);
 
-    // Draw grid
-    const grid = new PIXI.Graphics();
-    grid.lineStyle(1, 0xffffff, 0.5);
-    const size = 32;
-    const cols = 20;
-    const rows = 10;
-    for (let i = 0; i <= cols; i++) {
-      grid.moveTo(i * size, 0);
-      grid.lineTo(i * size, rows * size);
-    }
-    for (let i = 0; i <= rows; i++) {
-      grid.moveTo(0, i * size);
-      grid.lineTo(cols * size, i * size);
-    }
+    // Load map-test.tmj from json
+    const map = fetch('assets/map-test.tmj');
 
-    this.world.addChild(grid);
+    // this.world.loadMap(require('../assets/maps/map-test.tmj'));
 
     // Load Textures, then start the game
     skins.forEach((skin) => {
@@ -52,13 +42,15 @@ export default class Game {
 
   start() {
     // Create the player
-    this.player = new Player(this.app, this.world, -1, 0, 0, 'blue');
+    this.player = new Player(this.app, -1, 0, 0, 'blue');
+    this.world.addSortedChild(this.player);
     this.mobs.push(this.player);
     this.handlePlayerMovement(this.player);
   }
 
   addMob(id, skin, name, x, y) {
-    const mob = new Mob(this.app, this.world, id, 0, 0, skin, name);
+    const mob = new Mob(this.app, id, 0, 0, skin, name);
+    this.world.addSortedChild(mob);
     mob.x = x;
     mob.y = y;
     this.mobs.push(mob);
