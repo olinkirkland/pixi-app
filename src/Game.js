@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { Mob, Player } from './Mob';
-import { skins } from './Util';
+import { distance, skins } from './Util';
 import { gsap } from 'gsap';
 import World from './World';
 
@@ -9,7 +9,7 @@ export default class Game {
   player = null;
   map = null;
 
-  constructor(setMovement = null, setKeys = null, changeLocation = null) {
+  constructor(setMovement = null, setKeys = null) {
     this.setMovement = setMovement;
     this.setKeys = setKeys;
 
@@ -22,25 +22,46 @@ export default class Game {
     PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
     // Add the world to the stage
-    this.world = new World();
+    this.world = new World(this.app);
     this.app.stage.addChild(this.world);
 
-    // Load map-test.tmj from json
-    let url = `${process.env.PUBLIC_URL}/assets/maps/map-test.tmj`;
+    // Load tile reference
+    let url = `${process.env.PUBLIC_URL}/assets/tile-reference.json`;
     fetch(url).then((response) => {
       response.json().then((json) => {
-        this.map = json;
-        this.world.loadMap(this.map);
+        this.tileReference = json;
+        this.loadTextures();
       });
     });
+  }
 
+  loadTextures() {
     // Load Textures, then start the game
     skins.forEach((skin) => {
       this.app.loader.add(skin, `assets/skins/${skin}.png`);
     });
 
+    this.tileReference.forEach((tileReference) => {
+      this.app.loader.add(
+        tileReference.src,
+        `assets/tiles/${tileReference.src}`
+      );
+    });
+
+    console.log('Loading textures...');
     this.app.loader.load(() => {
-      this.start();
+      console.log('Loading complete!');
+
+      // Load the map, then start
+      let url = `${process.env.PUBLIC_URL}/assets/maps/map-test.tmj`;
+      fetch(url).then((response) => {
+        response.json().then((json) => {
+          this.map = json;
+          this.world.loadMap(this.map, this.tileReference);
+
+          this.start();
+        });
+      });
     });
   }
 
@@ -50,6 +71,13 @@ export default class Game {
     this.world.addSortedChild(this.player);
     this.mobs.push(this.player);
     this.handlePlayerMovement(this.player);
+  }
+
+  jumpToRandomTile() {
+    const g =
+      this.world.grid[Math.floor(Math.random() * this.world.grid.length)];
+    this.player.x = g.x;
+    this.player.y = g.y;
   }
 
   addMob(id, skin, name, x, y) {
@@ -87,9 +115,11 @@ export default class Game {
   }
 
   resetPlayerLocation() {
-    console.log('resetPlayerLocation');
-    this.player.x = this.app.screen.width / 2;
-    this.player.y = this.app.screen.height / 2;
+    // this.player.x = this.app.screen.width / 2;
+    // this.player.y = this.app.screen.height / 2;
+    // Set player x and y to 0
+    this.player.x = 0;
+    this.player.y = 0;
   }
 
   removeMob(id) {

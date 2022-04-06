@@ -13,8 +13,7 @@ function App() {
   let client = useRef();
 
   useEffect(() => {
-    if (game)
-    game.current = new Game(setMovement, setKeys);
+    if (game) game.current = new Game(setMovement, setKeys);
     client.current = new Client(
       setIsConnected,
       setElapsedTics,
@@ -25,7 +24,7 @@ function App() {
 
   function logAction(action) {
     // if (action.action === 'join') console.log(JSON.stringify(action));
-    console.log(action.id, ' ==> ', action.action);
+    // console.log(action.id, ' ==> ', action.action);
   }
 
   return (
@@ -37,8 +36,11 @@ function App() {
 
       <div className="column">
         <div className="panel">
-          <h2>Server</h2>
+          <h2>Game</h2>
           <ul>
+            <button onClick={() => game.current.jumpToRandomTile()}>
+              Jump to random tile
+            </button>
             <button
               onClick={() => {
                 if (isConnected) {
@@ -50,7 +52,6 @@ function App() {
             >
               {isConnected ? 'Stop' : 'Start'}
             </button>
-            <p>{isConnected ? `Running; ${elapsedTics} elapsed tics` : ``}</p>
           </ul>
         </div>
 
