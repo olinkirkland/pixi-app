@@ -6,7 +6,7 @@ export class Mob extends Sprite {
 
   constructor(app, id, x, y, skin) {
     super();
-    
+
     // console.log(`Mob id:${id}, skin:${skin}, x:${x}, y:${y}`);
 
     this.app = app;

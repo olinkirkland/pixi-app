@@ -26,9 +26,13 @@ export default class Game {
     this.app.stage.addChild(this.world);
 
     // Load map-test.tmj from json
-    const map = fetch('assets/map-test.tmj');
-
-    // this.world.loadMap(require('../assets/maps/map-test.tmj'));
+    let url = `${process.env.PUBLIC_URL}/assets/maps/map-test.tmj`;
+    fetch(url).then((response) => {
+      response.json().then((json) => {
+        this.map = json;
+        this.world.loadMap(this.map);
+      });
+    });
 
     // Load Textures, then start the game
     skins.forEach((skin) => {
