@@ -1,8 +1,8 @@
 import * as PIXI from 'pixi.js';
 import MapController from './MapController';
-import { Player } from '../Mob';
 import { skins } from '../Util';
 import MapRenderer from '../view/MapRenderer';
+import { Player } from '../Player';
 
 export default class GameController {
   mobs = [];
@@ -60,7 +60,7 @@ export default class GameController {
     this.mapController = new MapController(mapNames, this.mapRenderer);
     this.app.stage.addChild(this.mapRenderer);
 
-    const player = new Player(this.app, -1, 0, 0, 'blue');
+    const player = new Player();
     this.initializePlayerControls(player);
 
     this.hideLoading();
@@ -73,7 +73,7 @@ export default class GameController {
     const FRICTION = 0.8; // Player slows down by this coefficient when not accelerating
     const ACCELERATION = 0.2; // Player accelerates by this coefficient when moving
 
-    // Movement
+    // Initialize movement values
     let keys = {
       left: false,
       right: false,
@@ -85,7 +85,6 @@ export default class GameController {
       return { ...prev, keys: keys };
     });
 
-    // Initialize movement values
     let speed,
       acceleration,
       angle = 0;
@@ -107,11 +106,11 @@ export default class GameController {
       if (!acceleration) speed *= FRICTION;
       if (speed < MIN_SPEED) speed = 0;
 
-      player.moving = speed > MIN_WALK_SPEED;
+      // player.moving = speed > MIN_WALK_SPEED;
 
       if (angle !== 90 && angle !== 270)
         face = angle > 90 && angle < 270 ? 'left' : 'right';
-      player.face(face);
+      // player.face(face);
 
       // Center world on player
       // this.world.x = -player.x + this.app.screen.width / 2;
@@ -124,13 +123,12 @@ export default class GameController {
         return {
           ...prev,
           coord: { x: Math.floor(player.x), y: Math.floor(player.y) },
-          motion: { angle: angle, face: face },
-          moving: player.moving
+          motion: { angle: angle, face: face, moving: player.moving }
         };
       });
     });
 
-    // Movement listeners
+    // Key down listener
     document.addEventListener('keydown', (e) => {
       switch (e.key) {
         case 'ArrowUp':
@@ -154,6 +152,7 @@ export default class GameController {
       });
     });
 
+    // Key up listener
     document.addEventListener('keyup', (e) => {
       switch (e.key) {
         case 'ArrowUp':

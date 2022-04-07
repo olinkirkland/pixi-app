@@ -98,5 +98,3 @@ export class Mob extends Sprite {
     return sheet;
   }
 }
-
-export class Player extends Mob {}

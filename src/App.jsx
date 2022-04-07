@@ -19,10 +19,10 @@ function App() {
       <div className="column">
         {Object.keys(info).length > 0 && (
           <div className="panel">
-            <ul>
+            <ul className="info">
               {Object.keys(info).map((key, index) => {
                 return (
-                  <li key={index} className="li-info">
+                  <li key={index}>
                     <p>{key}</p>
                     <pre>{JSON.stringify(Object.values(info)[index])}</pre>
                   </li>
