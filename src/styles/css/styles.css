@@ -88,6 +88,9 @@ button:focus {
   flex-direction: column;
   align-items: center;
   height: 100%; }
+  .main .game-container {
+    width: 800px;
+    height: 600px; }
 
 /* Info */
 .li-info {

@@ -44,6 +44,7 @@ export default class Game {
     });
 
     console.log('Loading textures');
+    this.showLoading('Loading textures');
     this.app.loader.load(() => {
       // Load the map references, then start
       let url = `${process.env.PUBLIC_URL}/assets/map-reference.json`;
@@ -56,8 +57,8 @@ export default class Game {
   }
 
   start(mapNames) {
-    this.mapController = new MapController(mapNames);
-    this.mapRenderer = new MapRenderer(this.mapController);
+    this.mapRenderer = new MapRenderer();
+    this.mapController = new MapController(mapNames, this.mapRenderer);
 
     this.hideLoading();
   }
@@ -70,7 +71,8 @@ export default class Game {
 
   hideLoading() {
     this.setInfo((prev) => {
-      return { ...prev, loading: false };
+      delete prev.loading;
+      return { ...prev };
     });
   }
 
