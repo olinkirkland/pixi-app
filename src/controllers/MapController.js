@@ -2,7 +2,10 @@ import Block from '../Block';
 import { QuadTree, Box } from 'js-quadtree';
 
 export default class MapController {
+  static instance;
   constructor(mapNames, mapRenderer) {
+    if (MapController.instance) console.error('MapController is a singleton');
+    MapController.instance = this;
     this.mapNames = mapNames;
     this.mapRenderer = mapRenderer;
   }
@@ -38,24 +41,41 @@ export default class MapController {
       });
     });
 
-    // TODO cull blocks that are covered and surrounded by other blocks
+    // TODO cull blocks that can't be seen (covered and surrounded by other, non-transparent blocks)
 
     // Render
     const allBlocks = this.blocks.query(new Box(0, 0, this.width, this.height));
     this.mapRenderer.drawMap(allBlocks);
+    this.mapRenderer.drawMoveable(this.player);
+
+    // OnComplete callback
+    if (this.onComplete) this.onComplete();
   }
 
   addBlock(x, y, z, t) {
-    console.log('addBlock', t);
     this.blocks.insert(new Block(x, y, z, t));
   }
 
   addPlayer(player) {
     this.player = player;
-    this.mapRenderer.addMoveable(player);
+  }
+
+  getBlocksUnderPoint(x, y) {
+    const blocksUnderPoint = this.blocks.query(new Box(x - 1, y - 1, 1, 1));
+    return blocksUnderPoint;
+  }
+
+  getElevationUnderPoint(x, y) {
+    const blocksUnderPoint = this.getBlocksUnderPoint(x, y);
+    const highestElevation = blocksUnderPoint.reduce((acc, block) => {
+      return block.z > acc ? block.z : acc;
+    }, 0);
+
+    return highestElevation;
   }
 
   unload() {
-    console.log('unload');
+    console.log('unload mapController');
+    this.mapRenderer.unload();
   }
 }

@@ -5,33 +5,37 @@ export default class MapRenderer extends Sprite {
   moveables = [];
 
   drawMap(blocks) {
-    if (this.spr) this.removeChild(this.spr);
+    if (this.map) this.removeChild(this.map);
 
     const size = 20;
-    this.spr = new Sprite();
-    this.spr.graphics = new Graphics();
-    this.spr.addChild(this.spr.graphics);
-    this.addChild(this.spr);
-    this.spr.x = this.spr.y = 10;
-    this.spr.graphics.lineStyle(1, 0x000000);
+    this.map = new Sprite();
+    this.map.graphics = new Graphics();
+    this.map.addChild(this.map.graphics);
+    this.addChild(this.map);
+    this.map.x = this.map.y = 10;
+    this.map.graphics.lineStyle(1, 0x000000);
 
     blocks.forEach((block) => {
       const shade = block.z / 5;
-      this.spr.graphics.beginFill(colorBetween(0xffffff, 0x0000ff, shade));
-      this.spr.graphics.drawRect(block.x * size, block.y * size, size, size);
-      this.spr.graphics.endFill();
+      this.map.graphics.beginFill(colorBetween(0xffffff, 0x0000ff, shade));
+      this.map.graphics.drawRect(block.x * size, block.y * size, size, size);
+      this.map.graphics.endFill();
     });
   }
 
   drawMoveable(moveable) {
+    console.log('MapRenderer:drawMoveable', moveable);
     this.moveables.push(moveable);
-    moveable.positionFunction = this.toWorldPosition;
-    this.spr.addChild(moveable.sprite);
+    moveable.toWorldPosition = this.toWorldPosition;
+    this.map.addChild(moveable.sprite);
   }
 
   toWorldPosition(coord) {
-    coord.x *= 20;
-    coord.y *= 20;
-    return coord;
+    return { x: coord.x * 20, y: coord.y * 20 };
+  }
+
+  unload() {
+    console.log('unload mapRenderer');
+    // this.moveables = [];
   }
 }

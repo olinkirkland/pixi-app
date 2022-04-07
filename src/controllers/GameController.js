@@ -44,14 +44,22 @@ export default class GameController {
 
     console.log('Loading textures');
     this.showLoading('Loading textures');
+
+    let url = `${process.env.PUBLIC_URL}/assets/map-reference.json`;
+    fetch(url).then((response) => {
+      response.json().then((mapNames) => {
+        this.start(mapNames);
+      });
+    });
+
     this.app.loader.load(() => {
       // Load the map references, then start
-      let url = `${process.env.PUBLIC_URL}/assets/map-reference.json`;
-      fetch(url).then((response) => {
-        response.json().then((mapNames) => {
-          this.start(mapNames);
-        });
-      });
+      // let url = `${process.env.PUBLIC_URL}/assets/map-reference.json`;
+      // fetch(url).then((response) => {
+      //   response.json().then((mapNames) => {
+      //     this.start(mapNames);
+      //   });
+      // });
     });
   }
 
@@ -60,18 +68,26 @@ export default class GameController {
     this.mapController = new MapController(mapNames, this.mapRenderer);
     this.app.stage.addChild(this.mapRenderer);
 
-    const player = new Player();
-    this.initializePlayerControls(player);
+    this.player = new Player();
+    this.initializePlayerControls(this.player);
+    this.mapController.addPlayer(this.player);
+    this.mapController.onComplete = () => {
+      this.player.setPosition({ x: 0.5, y: 0.5 }, true); // Todo spawn point
+    };
+
+    // Load initial map
+    this.mapController.load(mapNames[0]);
 
     this.hideLoading();
   }
 
   initializePlayerControls(player) {
-    const MAX_SPEED = 2; // Maximum speed
-    const MIN_SPEED = 0.1; // Minimum speed before stopping
-    const MIN_WALK_SPEED = 0.3; // Minimum speed to play walk animation
+    console.log('initializing player controls');
+    const MAX_SPEED = 2 / 20; // Maximum speed
+    const MIN_SPEED = 0.1 / 20; // Minimum speed before stopping
+    const MIN_WALK_SPEED = 0.3 / 20; // Minimum speed to play walk animation
     const FRICTION = 0.8; // Player slows down by this coefficient when not accelerating
-    const ACCELERATION = 0.2; // Player accelerates by this coefficient when moving
+    const ACCELERATION = 0.01; // Player accelerates by this coefficient when moving
 
     // Initialize movement values
     let keys = {
@@ -85,12 +101,14 @@ export default class GameController {
       return { ...prev, keys: keys };
     });
 
-    let speed,
-      acceleration,
-      angle = 0;
+    let speed = 0;
+    let acceleration = 0;
+    let angle = 0;
     let face = 'right';
 
     this.app.ticker.add((delta) => {
+      if (!this.mapController.map) return;
+
       const currentAngle = this.angleFromKeys(keys);
       if (currentAngle !== angle) speed /= 2;
       if (currentAngle !== null) angle = currentAngle;
@@ -100,8 +118,11 @@ export default class GameController {
       speed += acceleration;
       speed = Math.min(speed, MAX_SPEED);
 
-      player.x += Math.cos((angle * Math.PI) / 180) * speed;
-      player.y += Math.sin((angle * Math.PI) / 180) * speed;
+      const coord = { ...player.getPosition() };
+      coord.x += Math.cos((angle * Math.PI) / 180) * speed;
+      coord.y += Math.sin((angle * Math.PI) / 180) * speed;
+
+      if (speed > 0) this.player.setPosition(coord);
 
       if (!acceleration) speed *= FRICTION;
       if (speed < MIN_SPEED) speed = 0;
@@ -112,6 +133,7 @@ export default class GameController {
         face = angle > 90 && angle < 270 ? 'left' : 'right';
       // player.face(face);
 
+      // TODO move this to MapRenderer
       // Center world on player
       // this.world.x = -player.x + this.app.screen.width / 2;
       // this.world.y = -player.y + this.app.screen.height / 2;
@@ -122,8 +144,17 @@ export default class GameController {
       this.setInfo((prev) => {
         return {
           ...prev,
-          coord: { x: Math.floor(player.x), y: Math.floor(player.y) },
-          motion: { angle: angle, face: face, moving: player.moving }
+          coord: {
+            x: player.getPosition().x.toFixed(2),
+            y: player.getPosition().y.toFixed(2),
+            z: player.elevation
+          },
+          motion: {
+            angle: angle,
+            face: face,
+            moving: player.moving,
+            speed: speed.toFixed(2)
+          }
         };
       });
     });
