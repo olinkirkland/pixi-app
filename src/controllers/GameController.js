@@ -1,11 +1,10 @@
-import { gsap } from 'gsap';
 import * as PIXI from 'pixi.js';
-import MapController from './controllers/MapController';
-import { Mob } from './Mob';
-import { skins } from './Util';
-import MapRenderer from './view/MapRenderer';
+import MapController from './MapController';
+import { Player } from '../Mob';
+import { skins } from '../Util';
+import MapRenderer from '../view/MapRenderer';
 
-export default class Game {
+export default class GameController {
   mobs = [];
   player = null;
 
@@ -59,85 +58,15 @@ export default class Game {
   start(mapNames) {
     this.mapRenderer = new MapRenderer();
     this.mapController = new MapController(mapNames, this.mapRenderer);
+    this.app.stage.addChild(this.mapRenderer);
+
+    const player = new Player(this.app, -1, 0, 0, 'blue');
+    this.initializePlayerControls(player);
 
     this.hideLoading();
   }
 
-  showLoading(str) {
-    this.setInfo((prev) => {
-      return { ...prev, loading: str };
-    });
-  }
-
-  hideLoading() {
-    this.setInfo((prev) => {
-      delete prev.loading;
-      return { ...prev };
-    });
-  }
-
-  jumpToRandomTile() {
-    this.jumpToTile(Math.floor(Math.random() * this.world.grid.length));
-  }
-
-  jumpToTile(n) {
-    const g = this.world.grid[n];
-    this.player.x = g.x;
-    this.player.y = g.y;
-    console.log(JSON.stringify(g));
-  }
-
-  addMob(id, skin, name, x, y) {
-    const mob = new Mob(this.app, id, 0, 0, skin, name);
-    this.world.addSortedChild(mob);
-    mob.x = x;
-    mob.y = y;
-    this.mobs.push(mob);
-  }
-
-  moveMob(id, x, y) {
-    const mob = this.mobs.find((mob) => mob.id === id);
-    if (!mob) {
-      console.error(`Could not find mob with id: ${id}`);
-      return;
-    }
-
-    gsap.killTweensOf(mob);
-    mob.moving = true;
-    mob.face(x > mob.x ? 'right' : 'left');
-    gsap.to(mob, {
-      x: x,
-      y: y,
-      duration: 1,
-      onComplete: () => (mob.moving = false)
-    });
-  }
-
-  setSkin(id, skin) {
-    const mob = this.mobs.find((m) => m.id === id);
-    if (mob) mob.setSkin(skin);
-    else {
-      console.error('Could not find mob with id:', id, ' in ', this.mobs);
-    }
-  }
-
-  resetPlayerLocation() {
-    this.jumpToTile(0);
-  }
-
-  removeMob(id) {
-    this.mobs.forEach((mob, index) => {
-      if (mob.id === id) this.mobs.splice(index, 1);
-    });
-  }
-
-  handlePlayerMovement(player) {
-    // Set the initial position
-    this.resetPlayerLocation();
-
-    // Opt-in to interactivity
-    player.interactive = true;
-
+  initializePlayerControls(player) {
     const MAX_SPEED = 2; // Maximum speed
     const MIN_SPEED = 0.1; // Minimum speed before stopping
     const MIN_WALK_SPEED = 0.3; // Minimum speed to play walk animation
@@ -152,15 +81,17 @@ export default class Game {
       down: false
     };
 
-    this.setKeys({ ...keys });
+    this.setInfo((prev) => {
+      return { ...prev, keys: keys };
+    });
 
-    let speed = 0;
-    let acceleration = 0;
-    let angle = null;
+    // Initialize movement values
+    let speed,
+      acceleration,
+      angle = 0;
     let face = 'right';
 
     this.app.ticker.add((delta) => {
-      // todo change speed if angle is different
       const currentAngle = this.angleFromKeys(keys);
       if (currentAngle !== angle) speed /= 2;
       if (currentAngle !== null) angle = currentAngle;
@@ -183,18 +114,19 @@ export default class Game {
       player.face(face);
 
       // Center world on player
-      this.world.x = -player.x + this.app.screen.width / 2;
-      this.world.y = -player.y + this.app.screen.height / 2;
+      // this.world.x = -player.x + this.app.screen.width / 2;
+      // this.world.y = -player.y + this.app.screen.height / 2;
 
-      if (player.moving)
-        this.grid.markPlayer(this.world.isoToGrid(player.x, player.y));
+      // if (player.moving)
+      //   this.grid.markPlayer(this.world.isoToGrid(player.x, player.y));
 
-      this.setMovement({
-        x: Math.floor(player.x),
-        y: Math.floor(player.y),
-        moving: player.moving,
-        angle: angle,
-        face: face
+      this.setInfo((prev) => {
+        return {
+          ...prev,
+          coord: { x: Math.floor(player.x), y: Math.floor(player.y) },
+          motion: { angle: angle, face: face },
+          moving: player.moving
+        };
       });
     });
 
@@ -217,8 +149,9 @@ export default class Game {
           break;
       }
 
-      // console.log(`Keydown: ${e.key}`);
-      this.setKeys({ ...keys });
+      this.setInfo((prev) => {
+        return { ...prev, keys: keys };
+      });
     });
 
     document.addEventListener('keyup', (e) => {
@@ -239,8 +172,9 @@ export default class Game {
           break;
       }
 
-      // console.log(`Key up: ${e.key}`);
-      this.setKeys({ ...keys });
+      this.setInfo((prev) => {
+        return { ...prev, keys: keys };
+      });
     });
   }
 
@@ -267,4 +201,72 @@ export default class Game {
 
     return angle;
   }
+
+  showLoading(str) {
+    this.setInfo((prev) => {
+      return { ...prev, loading: str };
+    });
+  }
+
+  hideLoading() {
+    this.setInfo((prev) => {
+      delete prev.loading;
+      return { ...prev };
+    });
+  }
+
+  // jumpToRandomTile() {
+  //   this.jumpToTile(Math.floor(Math.random() * this.world.grid.length));
+  // }
+
+  // jumpToTile(n) {
+  //   const g = this.world.grid[n];
+  //   this.player.x = g.x;
+  //   this.player.y = g.y;
+  //   console.log(JSON.stringify(g));
+  // }
+
+  // addMob(id, skin, name, x, y) {
+  //   const mob = new Mob(this.app, id, 0, 0, skin, name);
+  //   this.world.addSortedChild(mob);
+  //   mob.x = x;
+  //   mob.y = y;
+  //   this.mobs.push(mob);
+  // }
+
+  // moveMob(id, x, y) {
+  //   const mob = this.mobs.find((mob) => mob.id === id);
+  //   if (!mob) {
+  //     console.error(`Could not find mob with id: ${id}`);
+  //     return;
+  //   }
+
+  //   gsap.killTweensOf(mob);
+  //   mob.moving = true;
+  //   mob.face(x > mob.x ? 'right' : 'left');
+  //   gsap.to(mob, {
+  //     x: x,
+  //     y: y,
+  //     duration: 1,
+  //     onComplete: () => (mob.moving = false)
+  //   });
+  // }
+
+  // setSkin(id, skin) {
+  //   const mob = this.mobs.find((m) => m.id === id);
+  //   if (mob) mob.setSkin(skin);
+  //   else {
+  //     console.error('Could not find mob with id:', id, ' in ', this.mobs);
+  //   }
+  // }
+
+  // resetPlayerLocation() {
+  //   this.jumpToTile(0);
+  // }
+
+  // removeMob(id) {
+  //   this.mobs.forEach((mob, index) => {
+  //     if (mob.id === id) this.mobs.splice(index, 1);
+  //   });
+  // }
 }

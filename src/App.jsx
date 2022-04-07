@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import Game from './Game';
+import GameController from './controllers/GameController';
 
 function App() {
   const [info, setInfo] = useState({ loading: 'Initializing' });
@@ -8,7 +8,7 @@ function App() {
 
   useEffect(() => {
     if (!game.current) {
-      game.current = new Game(setInfo);
+      game.current = new GameController(setInfo);
     }
   }, []);
 
