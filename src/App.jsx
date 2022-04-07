@@ -1,78 +1,56 @@
 import { useEffect, useRef, useState } from 'react';
-import Client from './Client';
 import Game from './Game';
-import { skins } from './Util';
 
 function App() {
-  const [movement, setMovement] = useState();
-  const [keys, setKeys] = useState();
-  const [elapsedTics, setElapsedTics] = useState(0);
-  const [isConnected, setIsConnected] = useState(false);
+  const [info, setInfo] = useState({ loading: true });
 
   let game = useRef();
-  let client = useRef();
 
   useEffect(() => {
-    if (game) game.current = new Game(setMovement, setKeys);
-    client.current = new Client(
-      setIsConnected,
-      setElapsedTics,
-      game.current,
-      logAction
-    );
+    if (!game.current) {
+      game.current = new Game(setInfo);
+    }
   }, []);
 
-  function logAction(action) {
-    // if (action.action === 'join') console.log(JSON.stringify(action));
-    // console.log(action.id, ' ==> ', action.action);
-  }
-
   return (
-    <>
+    <div className="main">
       <h1>PixiJS + React</h1>
 
-      <pre>{`Movement: ${JSON.stringify(movement)}`}</pre>
-      <pre>{`Keys: ${JSON.stringify(keys)}`}</pre>
+      <div>
+        {!info.loading && (
+          <>
+            <div className="column">
+              <div className="panel">
+                <h2>Game Info</h2>
+                <ul>
+                  {Object.keys(info).map((key, index) => {
+                    return (
+                      <li key={index} className="li-info">
+                        <p>{key}</p>
+                        <pre>{JSON.stringify(Object.values(info)[index])}</pre>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
 
-      <div className="column">
-        <div className="panel">
-          <h2>Game</h2>
-          <ul>
-            <button onClick={() => game.current.jumpToRandomTile()}>
-              Jump to random tile
-            </button>
-            <button
-              onClick={() => {
-                if (isConnected) {
-                  client.current.disconnect();
-                } else {
-                  client.current.connect();
-                }
-              }}
-            >
-              {isConnected ? 'Stop' : 'Start'}
-            </button>
-          </ul>
-        </div>
+              <div className="panel">
+                <h2>Load Map</h2>
+                <ul>
+                  {game.current.mapController.mapNames.map((mapName) => (
+                    <li key={mapName}>
+                      <button>{mapName}</button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </>
+        )}
 
-        <div className="panel">
-          <h2>Change your avatar</h2>
-          <ul>
-            {skins.map((skin) => (
-              <li key={skin}>
-                <button
-                  onClick={() => {
-                    game.current.setSkin(-1, skin);
-                  }}
-                >
-                  {skin}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <div className={`game-container ${info.loading ? 'hidden' : ''}`}></div>
       </div>
-    </>
+    </div>
   );
 }
 

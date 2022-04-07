@@ -1,0 +1,101 @@
+/* General */
+* {
+  margin: 0;
+  padding: 0; }
+
+html {
+  font-size: 62.5%;
+  font-family: Verdana, serif; }
+
+body {
+  height: 100%;
+  overflow: hidden;
+  margin: 2rem; }
+
+ul {
+  list-style-type: none;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.4rem 0; }
+
+p {
+  font-size: 1.4rem; }
+
+h1 {
+  margin: 1rem 0; }
+
+pre {
+  font-family: Consolas, monospace;
+  font-size: 1.6rem;
+  margin-left: 1rem;
+  border-left: 0.4rem solid #ffa600;
+  padding-left: 0.8rem; }
+
+button {
+  font-family: inherit;
+  padding: 0.4rem 1.2rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-transform: capitalize;
+  letter-spacing: 0.8px;
+  font-size: 1.2rem;
+  font-weight: lighter;
+  background-color: #d3d3d350;
+  transition: all 0.3s; }
+
+button:hover {
+  background-color: #d3d3d390; }
+
+button:active {
+  background-color: #d3d3d3; }
+
+button:focus {
+  outline: none; }
+
+/* Layout Utils */
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  margin: 1rem 0; }
+
+.panel {
+  display: inline-flex;
+  flex-direction: column;
+  border-radius: 5px;
+  padding: 1rem 2rem;
+  background-color: #d3d3d320; }
+  .panel h2 {
+    font-size: 1rem;
+    letter-spacing: 1px;
+    font-weight: normal;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 0.4rem; }
+
+.flex {
+  display: flex;
+  gap: 0.4rem; }
+
+.hidden {
+  display: none; }
+
+/* App */
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%; }
+
+/* Info */
+.li-info {
+  display: flex;
+  align-items: center; }
+  .li-info p {
+    font-size: 1rem;
+    letter-spacing: 1px;
+    text-transform: uppercase; }
+
+/*# sourceMappingURL=styles.css.map */

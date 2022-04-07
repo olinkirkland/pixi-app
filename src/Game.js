@@ -1,22 +1,21 @@
 import { gsap } from 'gsap';
 import * as PIXI from 'pixi.js';
-import Grid from './Grid';
-import { Mob, Player } from './Mob';
+import MapController from './controllers/MapController';
+import { Mob } from './Mob';
 import { skins } from './Util';
-import World from './World';
+import MapRenderer from './view/MapRenderer';
 
 export default class Game {
   mobs = [];
   player = null;
 
-  constructor(setMovement = null, setKeys = null) {
-    this.setMovement = setMovement;
-    this.setKeys = setKeys;
+  constructor(setInfo) {
+    console.log('Initializing game');
+    this.setInfo = setInfo;
 
-    console.log('== Setting up game ==');
-
+    // Create PIXI App, attach to DOM
     this.app = new PIXI.Application({ backgroundColor: 0x1099bb });
-    document.body.appendChild(this.app.view);
+    document.querySelector('.game-container').appendChild(this.app.view);
 
     // Scale mode for all textures, will retain pixelation
     PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
@@ -46,31 +45,33 @@ export default class Game {
 
     console.log('Loading textures');
     this.app.loader.load(() => {
-      // Load the map, then start
-      let url = `${process.env.PUBLIC_URL}/assets/maps/map.tmj`;
+      // Load the map references, then start
+      let url = `${process.env.PUBLIC_URL}/assets/map-reference.json`;
       fetch(url).then((response) => {
-        response.json().then((map) => {
-          // Add the world to the stage
-          this.world = new World(this.app);
-          this.world.loadMap(map, this.tileReference);
-          this.app.stage.addChild(this.world);
-
-          // Add grid
-          this.grid = new Grid(this.world);
-          this.app.stage.addChild(this.grid);
-
-          this.start();
+        response.json().then((mapNames) => {
+          this.start(mapNames);
         });
       });
     });
   }
 
-  start() {
-    // Create the player
-    this.player = new Player(this.app, -1, 0, 0, 'blue');
-    this.world.addSortedChild(this.player);
-    this.mobs.push(this.player);
-    this.handlePlayerMovement(this.player);
+  start(mapNames) {
+    this.mapController = new MapController(mapNames);
+    this.mapRenderer = new MapRenderer(this.mapController);
+
+    this.hideLoading();
+  }
+
+  showLoading(str) {
+    this.setInfo((prev) => {
+      return { ...prev, loading: str };
+    });
+  }
+
+  hideLoading() {
+    this.setInfo((prev) => {
+      return { ...prev, loading: false };
+    });
   }
 
   jumpToRandomTile() {
