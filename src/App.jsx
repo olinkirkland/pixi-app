@@ -9,6 +9,8 @@ function App() {
   useEffect(() => {
     if (!game.current) {
       game.current = new GameController(setInfo);
+    } else {
+      window.location.reload();
     }
   }, []);
 

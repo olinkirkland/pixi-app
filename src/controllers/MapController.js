@@ -1,5 +1,5 @@
+import { Box, QuadTree } from 'js-quadtree';
 import Block from '../Block';
-import { QuadTree, Box } from 'js-quadtree';
 
 export default class MapController {
   static instance;

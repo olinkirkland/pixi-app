@@ -3,6 +3,7 @@ import { Graphics, Sprite } from 'pixi.js';
 export class Moveable {
   constructor() {
     this.coord = { x: 0, y: 0 };
+    this.elevation = 0;
 
     this.sprite = new Sprite();
     this.draw();

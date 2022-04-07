@@ -14,7 +14,7 @@ export default class World extends Sprite {
     super();
     this.app = app;
   }
-  
+
   loadMap(map, tileReference) {
     this.tileReference = tileReference;
     this.map = map;

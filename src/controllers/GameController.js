@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import MapController from './MapController';
 import { skins } from '../Util';
-import MapRenderer from '../view/MapRenderer';
+import IsometricMapRenderer from '../view/IsometricMapRenderer';
 import { Player } from '../Player';
 
 export default class GameController {
@@ -64,7 +64,7 @@ export default class GameController {
   }
 
   start(mapNames) {
-    this.mapRenderer = new MapRenderer();
+    this.mapRenderer = new IsometricMapRenderer();
     this.mapController = new MapController(mapNames, this.mapRenderer);
     this.app.stage.addChild(this.mapRenderer);
 
@@ -88,6 +88,7 @@ export default class GameController {
     const MIN_WALK_SPEED = 0.3 / 20; // Minimum speed to play walk animation
     const FRICTION = 0.8; // Player slows down by this coefficient when not accelerating
     const ACCELERATION = 0.01; // Player accelerates by this coefficient when moving
+    const FALL_SPEED = 0.01; // Player falls by this speed
 
     // Initialize movement values
     let keys = {
@@ -110,7 +111,7 @@ export default class GameController {
       if (!this.mapController.map) return;
 
       const currentAngle = this.angleFromKeys(keys);
-      if (currentAngle !== angle) speed /= 2;
+      // if (currentAngle !== angle) speed /= 2;
       if (currentAngle !== null) angle = currentAngle;
 
       acceleration = Object.values(keys).some((key) => key) ? ACCELERATION : 0;
@@ -133,13 +134,16 @@ export default class GameController {
         face = angle > 90 && angle < 270 ? 'left' : 'right';
       // player.face(face);
 
-      // TODO move this to MapRenderer
-      // Center world on player
-      // this.world.x = -player.x + this.app.screen.width / 2;
-      // this.world.y = -player.y + this.app.screen.height / 2;
+      if (player.falling) player.fall(FALL_SPEED);
 
       // if (player.moving)
       //   this.grid.markPlayer(this.world.isoToGrid(player.x, player.y));
+
+      // Ensure player is always in the center of the screen
+      this.mapRenderer.x =
+        -player.getPosition().x + this.app.renderer.width / 2;
+      this.mapRenderer.y =
+        -player.getPosition().y + this.app.renderer.height / 2;
 
       this.setInfo((prev) => {
         return {
@@ -228,6 +232,9 @@ export default class GameController {
     } else if (keys.right) {
       angle = 0;
     }
+
+    // For isometric maps, subtract 45 degrees
+    if (angle !== null) angle -= 45;
 
     return angle;
   }
