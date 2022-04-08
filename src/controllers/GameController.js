@@ -9,7 +9,7 @@ export default class GameController {
   static instance;
   mobs = [];
   player = null;
-  scale = 1;
+  scale = 0.4;
 
   constructor(setInfo) {
     if (GameController.instance) console.error('GameController is a singleton');
@@ -169,8 +169,11 @@ export default class GameController {
     // Scroll listener
     document.addEventListener('wheel', (e) => {
       console.log(e.deltaY);
-      if (e.deltaY < 0) this.scale += 0.1;
-      if (e.deltaY > 0) this.scale -= 0.1;
+      if (e.deltaY < 0) this.scale += 0.2;
+      if (e.deltaY > 0) this.scale -= 0.2;
+      this.scale = Math.max(0.4, this.scale);
+      this.scale = Math.min(1.2, this.scale);
+
       console.log(this.scale);
     });
 
