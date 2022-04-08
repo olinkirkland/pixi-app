@@ -1,9 +1,8 @@
 import * as PIXI from 'pixi.js';
 import { Player } from '../Player';
 import { skins } from '../Util';
-import IsometricMapRenderer from '../view/IsometricMapRenderer';
-import MapRenderer from '../view/MapRenderer';
 import MapController from './MapController';
+import PokeMapRenderer from '../view/PokeMapRenderer';
 
 export default class GameController {
   static instance;
@@ -63,7 +62,7 @@ export default class GameController {
   }
 
   start(mapNames) {
-    this.mapRenderer = new IsometricMapRenderer();
+    this.mapRenderer = new PokeMapRenderer();
     // this.mapRenderer = new MapRenderer();
     this.mapController = new MapController(mapNames, this.mapRenderer);
     this.app.stage.addChild(this.mapRenderer);
@@ -134,7 +133,7 @@ export default class GameController {
         face = angle > 90 && angle < 270 ? 'left' : 'right';
       // player.face(face);
 
-      if (player.falling) player.fall(FALL_SPEED);
+      // if (player.falling) player.fall(FALL_SPEED);
 
       // if (player.moving)
       //   this.grid.markPlayer(this.world.isoToGrid(player.x, player.y));
@@ -156,7 +155,7 @@ export default class GameController {
             face: face,
             moving: player.moving,
             speed: speed.toFixed(2),
-            acceleration: acceleration.toFixed(1)
+            acceleration: acceleration.toFixed(2)
           }
         };
       });
@@ -233,7 +232,7 @@ export default class GameController {
     }
 
     // For isometric maps, subtract 45 degrees
-    if (angle !== null) angle -= 45;
+    // if (angle !== null) angle -= 45;
 
     return angle;
   }

@@ -4,6 +4,7 @@ import { Moveable } from './Moveable';
 export class Player extends Moveable {
   falling = true;
   elevationUnderPlayer = 0;
+  onMoveFunctions = [];
 
   setPosition(nextCoord, ignoreCollision = false) {
     if (!this.toWorldPosition) return;
@@ -36,7 +37,15 @@ export class Player extends Moveable {
       else this.elevation = nextElevation;
     }
 
+    this.onMoveFunctions.forEach((onMoveFunction) => {
+      onMoveFunction(this.coord.x, this.coord.y);
+    });
+
     this.draw();
+  }
+
+  registerOnMoveFunction(onMoveFunction) {
+    this.onMoveFunctions.push(onMoveFunction);
   }
 
   fall(fallSpeed) {

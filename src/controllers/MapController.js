@@ -59,6 +59,14 @@ export default class MapController {
 
   addPlayer(player) {
     this.player = player;
+    this.mapRenderer.addPlayer(this.player);
+  }
+
+  getBlocksAroundPoint(x, y, size) {
+    const blocksAroundPoint = this.blocks.query(
+      new Box(x - size, y - size, size * 2, size * 2)
+    );
+    return blocksAroundPoint;
   }
 
   getBlocksUnderPoint(x, y) {
