@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import { Player } from '../Player';
 import { skins } from '../Util';
 import IsometricMapRenderer from '../view/IsometricMapRenderer';
+import MapRenderer from '../view/MapRenderer';
 import MapController from './MapController';
 
 export default class GameController {
@@ -63,6 +64,7 @@ export default class GameController {
 
   start(mapNames) {
     this.mapRenderer = new IsometricMapRenderer();
+    // this.mapRenderer = new MapRenderer();
     this.mapController = new MapController(mapNames, this.mapRenderer);
     this.app.stage.addChild(this.mapRenderer);
 

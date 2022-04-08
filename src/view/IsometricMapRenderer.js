@@ -30,7 +30,7 @@ export default class IsometricMapRenderer extends Sprite {
         GameController.instance.app.loader.resources[`tile-${block.t}`].texture
       );
 
-      u.x = coord.x - this.tileWidth / 2;
+      u.x = coord.x - this.tileWidth;
       u.y = coord.y - this.tileHeight;
       u.scale = { x: scale, y: scale };
       this.map.addChild(u);
@@ -59,7 +59,7 @@ export default class IsometricMapRenderer extends Sprite {
   }
 
   drawMoveable(moveable) {
-    console.log('MapRenderer:drawMoveable', moveable);
+    console.log('IsometricMapRenderer:drawMoveable', moveable);
     this.moveables.push(moveable);
     moveable.toWorldPosition = this.toWorldPosition.bind(this);
     this.map.addChild(moveable.sprite);
@@ -67,7 +67,8 @@ export default class IsometricMapRenderer extends Sprite {
 
   toWorldPosition(coord, z = 0) {
     const coordIso = this.toIso(coord.x, coord.y);
-    return { x: coordIso.x, y: coordIso.y - z * this.tileHeight };
+    // return { x: coordIso.x, y: coordIso.y - z * this.tileHeight };
+    return { x: coordIso.x, y: coordIso.y };
   }
 
   unload() {

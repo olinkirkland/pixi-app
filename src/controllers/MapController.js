@@ -43,8 +43,9 @@ export default class MapController {
 
     // TODO cull blocks that can't be seen (covered and surrounded by other, non-transparent blocks)
 
-    // Render
     const allBlocks = this.blocks.query(new Box(0, 0, this.width, this.height));
+
+    // Render the map
     this.mapRenderer.drawMap(allBlocks);
     this.mapRenderer.drawMoveable(this.player);
 
