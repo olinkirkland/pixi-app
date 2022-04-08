@@ -1,14 +1,18 @@
 import * as PIXI from 'pixi.js';
-import MapController from './MapController';
+import { Player } from '../Player';
 import { skins } from '../Util';
 import IsometricMapRenderer from '../view/IsometricMapRenderer';
-import { Player } from '../Player';
+import MapController from './MapController';
 
 export default class GameController {
+  static instance;
   mobs = [];
   player = null;
 
   constructor(setInfo) {
+    if (GameController.instance) console.error('GameController is a singleton');
+    GameController.instance = this;
+
     console.log('Initializing game');
     this.setInfo = setInfo;
 
@@ -35,11 +39,8 @@ export default class GameController {
       this.app.loader.add(skin, `assets/skins/${skin}.png`);
     });
 
-    this.tileReference.forEach((tileReference) => {
-      this.app.loader.add(
-        tileReference.src,
-        `assets/tiles/${tileReference.src}`
-      );
+    this.tileReference.forEach((tileReference, index) => {
+      this.app.loader.add(`tile-${index}`, `assets/tiles/${tileReference.src}`);
     });
 
     console.log('Loading textures');
@@ -48,18 +49,15 @@ export default class GameController {
     let url = `${process.env.PUBLIC_URL}/assets/map-reference.json`;
     fetch(url).then((response) => {
       response.json().then((mapNames) => {
-        this.start(mapNames);
+        this.app.loader.load(() => {
+          let url = `${process.env.PUBLIC_URL}/assets/map-reference.json`;
+          fetch(url).then((response) => {
+            response.json().then((mapNames) => {
+              this.start(mapNames);
+            });
+          });
+        });
       });
-    });
-
-    this.app.loader.load(() => {
-      // Load the map references, then start
-      // let url = `${process.env.PUBLIC_URL}/assets/map-reference.json`;
-      // fetch(url).then((response) => {
-      //   response.json().then((mapNames) => {
-      //     this.start(mapNames);
-      //   });
-      // });
     });
   }
 
@@ -88,7 +86,7 @@ export default class GameController {
     const MIN_WALK_SPEED = 0.3 / 20; // Minimum speed to play walk animation
     const FRICTION = 0.8; // Player slows down by this coefficient when not accelerating
     const ACCELERATION = 0.01; // Player accelerates by this coefficient when moving
-    const FALL_SPEED = 0.01; // Player falls by this speed
+    const FALL_SPEED = 0.1; // Player falls by this speed
 
     // Initialize movement values
     let keys = {
@@ -140,10 +138,8 @@ export default class GameController {
       //   this.grid.markPlayer(this.world.isoToGrid(player.x, player.y));
 
       // Ensure player is always in the center of the screen
-      this.mapRenderer.x =
-        -player.getPosition().x + this.app.renderer.width / 2;
-      this.mapRenderer.y =
-        -player.getPosition().y + this.app.renderer.height / 2;
+      this.mapRenderer.x = -player.sprite.x + this.app.renderer.width / 2;
+      this.mapRenderer.y = -player.sprite.y + this.app.renderer.height / 2;
 
       this.setInfo((prev) => {
         return {
@@ -157,7 +153,8 @@ export default class GameController {
             angle: angle,
             face: face,
             moving: player.moving,
-            speed: speed.toFixed(2)
+            speed: speed.toFixed(2),
+            acceleration: acceleration.toFixed(1)
           }
         };
       });

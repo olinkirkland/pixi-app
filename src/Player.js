@@ -9,12 +9,12 @@ export class Player extends Moveable {
     if (!this.toWorldPosition) return;
 
     // Todo remove this
-    this.coord = { ...nextCoord };
-    const worldCoord = this.toWorldPosition(this.coord);
-    this.sprite.x = worldCoord.x;
-    this.sprite.y = worldCoord.y;
-    this.falling = false;
-    return;
+    // this.coord = { ...nextCoord };
+    // const worldCoord = this.toWorldPosition(this.coord);
+    // this.sprite.x = worldCoord.x;
+    // this.sprite.y = worldCoord.y;
+    // this.falling = false;
+    // return;
 
     // Todo remove this
     ignoreCollision = true;
@@ -28,7 +28,7 @@ export class Player extends Moveable {
     // If so, don't move the player
     if (ignoreCollision || nextElevation <= this.elevation) {
       this.coord = { ...nextCoord };
-      const worldCoord = this.toWorldPosition(this.coord);
+      const worldCoord = this.toWorldPosition(this.coord, this.elevation);
       this.sprite.x = worldCoord.x;
       this.sprite.y = worldCoord.y;
       this.elevationUnderPlayer = nextElevation;
@@ -47,6 +47,8 @@ export class Player extends Moveable {
       this.elevation = this.elevationUnderPlayer;
       this.falling = false;
     }
+
+    this.setPosition(this.coord, this.elevation);
 
     this.draw();
   }
