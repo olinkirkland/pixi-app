@@ -27,7 +27,9 @@ export default class IsometricMapRenderer extends Sprite {
       // if (block.z > 0) return;
       const coord = this.toWorldPosition({ x: block.x, y: block.y });
       let u = new Sprite(
-        GameController.instance.app.loader.resources[`tile-${block.t}`].texture
+        GameController.instance.app.loader.resources[
+          `tile-${block.t - 1}`
+        ].texture
       );
 
       u.x = coord.x;
