@@ -19,7 +19,7 @@ export default class IsometricMapRenderer extends Sprite {
     this.map.graphics = new Graphics();
     this.addChild(this.map);
 
-    const scale = 0.2;
+    const scale = 1;
     this.tileWidth = Math.floor(232 * scale);
     this.tileHeight = Math.floor(110 * scale);
 
@@ -30,16 +30,19 @@ export default class IsometricMapRenderer extends Sprite {
         GameController.instance.app.loader.resources[`tile-${block.t}`].texture
       );
 
-      u.x = coord.x - this.tileWidth;
-      u.y = coord.y - this.tileHeight;
+      u.x = coord.x;
+      u.y = coord.y;
       u.scale = { x: scale, y: scale };
       this.map.addChild(u);
+      u.graphics = new Graphics();
+      u.addChild(u.graphics);
+      // u.graphics.
+      // u.graphics.drawRect(0, 0, u.width, u.height);
 
       this.map.graphics.beginFill(
-        colorBetween(0x0000ff, 0xffffff, block.z / 2)
+        colorBetween(0x000000, 0xffffff, block.z / 2)
       );
-      this.map.graphics.moveTo(coord.x, coord.y);
-      this.map.graphics.drawRect(coord.x, coord.y, 5, 5);
+      this.map.graphics.drawCircle(coord.x, coord.y, 10);
       this.map.graphics.endFill();
     });
 

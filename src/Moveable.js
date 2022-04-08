@@ -1,4 +1,5 @@
 import { Graphics, Sprite } from 'pixi.js';
+import { colorBetween } from './Util';
 
 export class Moveable {
   constructor() {
@@ -13,9 +14,11 @@ export class Moveable {
     // Draw a red circle
     if (this.sprite.graphics) this.sprite.removeChild(this.sprite.graphics);
     this.sprite.graphics = new Graphics();
-    this.sprite.graphics.lineStyle(1, 0x000000);
-    this.sprite.graphics.beginFill(0xff0000, this.elevation / 3);
-    this.sprite.graphics.drawCircle(0, 0, 5);
+    // this.sprite.graphics.lineStyle(1, 0x000000);
+    this.sprite.graphics.beginFill(
+      colorBetween(0x0000ff, 0xff0000, this.elevation / 2)
+    );
+    this.sprite.graphics.drawCircle(0, 0, 20);
     this.sprite.graphics.endFill();
     this.sprite.addChild(this.sprite.graphics);
   }

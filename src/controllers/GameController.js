@@ -9,6 +9,7 @@ export default class GameController {
   static instance;
   mobs = [];
   player = null;
+  scale = 1;
 
   constructor(setInfo) {
     if (GameController.instance) console.error('GameController is a singleton');
@@ -140,8 +141,11 @@ export default class GameController {
       //   this.grid.markPlayer(this.world.isoToGrid(player.x, player.y));
 
       // Ensure player is always in the center of the screen
-      this.mapRenderer.x = -player.sprite.x + this.app.renderer.width / 2;
-      this.mapRenderer.y = -player.sprite.y + this.app.renderer.height / 2;
+      this.mapRenderer.scale = { x: this.scale, y: this.scale };
+      this.mapRenderer.x =
+        -player.sprite.x * this.scale + this.app.renderer.width / 2;
+      this.mapRenderer.y =
+        -player.sprite.y * this.scale + this.app.renderer.height / 2;
 
       this.setInfo((prev) => {
         return {
@@ -160,6 +164,14 @@ export default class GameController {
           }
         };
       });
+    });
+
+    // Scroll listener
+    document.addEventListener('wheel', (e) => {
+      console.log(e.deltaY);
+      if (e.deltaY < 0) this.scale += 0.1;
+      if (e.deltaY > 0) this.scale -= 0.1;
+      console.log(this.scale);
     });
 
     // Key down listener
